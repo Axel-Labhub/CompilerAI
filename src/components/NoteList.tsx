@@ -89,16 +89,41 @@ export const NoteList: React.FC<NoteListProps> = ({
   // 空状态
   if (!loading && notes.length === 0) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center text-app-muted p-8">
-        <svg className="w-16 h-16 mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        <p className="text-lg mb-2">
-          {mode === 'favorites' ? '暂无收藏' : '暂无笔记'}
+      <div className="flex-1 flex flex-col items-center justify-center p-8">
+        {/* 增强的空状态插画 */}
+        <div className="relative mb-6">
+          <div className="w-28 h-28 mx-auto rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/40 dark:to-primary-800/40 flex items-center justify-center shadow-lg shadow-primary-500/10">
+            <svg className="w-14 h-14 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          {/* 装饰性光晕 */}
+          <div className="absolute inset-0 w-28 h-28 mx-auto rounded-full bg-gradient-to-br from-primary-400/20 to-transparent blur-xl -z-10" />
+        </div>
+        
+        <h3 className="text-lg font-medium text-app-text mb-2">
+          {mode === 'favorites' ? '暂无收藏笔记' : '还没有笔记'}
+        </h3>
+        <p className="text-sm text-app-muted mb-6 max-w-xs text-center">
+          {mode === 'favorites' 
+            ? '点击笔记卡片上的星标即可收藏' 
+            : '记录你的第一条笔记，开启智能工作之旅'}
         </p>
-        <p className="text-sm">
-          {mode === 'favorites' ? '点击笔记卡片上的星标收藏' : '点击左侧「新建笔记」开始记录'}
-        </p>
+        
+        {mode === 'normal' && (
+          <button 
+            onClick={() => {
+              // 触发新建笔记事件
+              window.dispatchEvent(new CustomEvent('app-create-note'))
+            }}
+            className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            创建笔记
+          </button>
+        )}
       </div>
     )
   }

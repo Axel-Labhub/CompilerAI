@@ -519,51 +519,73 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
       {/* Markdown 工具栏 */}
       <MarkdownToolbar onInsert={handleInsertMarkdown} disabled={saving} />
 
-      {/* AI 面板 */}
+      {/* AI 面板 - 增强视觉效果 */}
       {showAiPanel && (
-        <div className="border-b border-app-border bg-app-card/50 p-4">
+        <div className="relative border-b border-app-border overflow-hidden">
+          {/* 渐变背景 */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 via-purple-500/5 to-primary-500/5" />
+          {/* 顶部装饰线 */}
+          <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-primary-500/50 to-transparent" />
           
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleAIClean}
-                disabled={aiProcessing || !content.trim()}
-                className="px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-sm hover:bg-green-500/30 disabled:opacity-50 transition-all duration-200 hover:shadow-lg hover:shadow-green-500/20 hover:-translate-y-0.5 active:scale-[0.98]"
-              >
-                ✨ 一键清洗
-              </button>
-              <button
-                onClick={handleAITags}
-                disabled={aiProcessing || (!title.trim() && !content.trim())}
-                className="px-3 py-1.5 bg-purple-500/20 text-purple-400 rounded-lg text-sm hover:bg-purple-500/30 disabled:opacity-50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/20 hover:-translate-y-0.5 active:scale-[0.98]"
-              >
-                🏷️ 智能标签
-              </button>
+          <div className="relative p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
+                <span className="text-xs font-medium text-primary-400 uppercase tracking-wider">AI 智能助手</span>
+              </div>
             </div>
-
-            {aiProcessing && <AIProcessingIndicator />}
-
-            {aiResult && !aiProcessing && (
-              <div className="flex-1 flex items-center gap-2">
-                <div className="flex-1 px-3 py-1.5 bg-app-bg rounded-lg text-sm text-app-muted truncate">
-                  {aiResult.length > 100 ? aiResult.substring(0, 100) + '...' : aiResult}
-                </div>
+            
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={applyAiResult}
-                  className="px-3 py-1.5 bg-primary-500 text-white rounded-lg text-sm hover:bg-primary-600"
+                  onClick={handleAIClean}
+                  disabled={aiProcessing || !content.trim()}
+                  className="group relative px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 text-emerald-400 rounded-xl text-sm font-medium transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-emerald-500/20 hover:-translate-y-0.5 active:scale-[0.98] border border-emerald-500/30"
                 >
-                  应用
+                  <span className="flex items-center gap-2">
+                    <span className="text-base">✨</span>
+                    <span>一键清洗</span>
+                  </span>
                 </button>
                 <button
-                  onClick={() => setAiResult(null)}
-                  className="p-1.5 hover:bg-app-border rounded text-app-muted"
+                  onClick={handleAITags}
+                  disabled={aiProcessing || (!title.trim() && !content.trim())}
+                  className="group relative px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-purple-400 rounded-xl text-sm font-medium transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-purple-500/20 hover:-translate-y-0.5 active:scale-[0.98] border border-purple-500/30"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <span className="flex items-center gap-2">
+                    <span className="text-base">🏷️</span>
+                    <span>智能标签</span>
+                  </span>
                 </button>
               </div>
-            )}
+
+              {aiProcessing && (
+                <AIProcessingIndicator message={aiMode === 'clean' ? '正在清洗内容...' : '正在生成标签...'} />
+              )}
+
+              {aiResult && !aiProcessing && (
+                <div className="flex-1 flex items-center gap-2">
+                  <div className="flex-1 px-4 py-2.5 bg-app-bg rounded-xl text-sm text-app-muted border border-app-border/50">
+                    <span className="text-primary-400 mr-2">✨</span>
+                    {aiResult.length > 120 ? aiResult.substring(0, 120) + '...' : aiResult}
+                  </div>
+                  <button
+                    onClick={applyAiResult}
+                    className="px-4 py-2 bg-gradient-to-r from-primary-500 to-indigo-500 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 active:scale-[0.98] transition-all"
+                  >
+                    应用
+                  </button>
+                  <button
+                    onClick={() => setAiResult(null)}
+                    className="p-2 hover:bg-app-border rounded-lg text-app-muted hover:text-app-text transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
