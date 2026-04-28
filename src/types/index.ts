@@ -301,6 +301,12 @@ export const KEYBOARD_SHORTCUTS: KeyboardShortcut[] = [
 
 export type ExportFormat = 'md' | 'html' | 'pdf'
 
+// 导出选项
+export interface ExportOptions {
+  includeMetadata: boolean    // 包含元数据（创建时间、更新时间、标签）
+  includeCompiledSection: boolean  // 包含编译真相区域
+}
+
 // ==================== 搜索筛选 ====================
 
 export interface SearchFilters {
@@ -457,4 +463,57 @@ export interface HandoverContent {
   importantReminders: string // 重要提醒
   accountCredentials?: string // 账号密码记录（加密）
   additionalNotes?: string   // 补充说明
+}
+
+// ==================== 会议纪要处理 ====================
+
+export interface MeetingSummary {
+  title?: string
+  meetingInfo?: {
+    date?: string
+    location?: string
+    host?: string
+    participants?: string[]
+  }
+  // 待办事项
+  todos: TodoItem[]
+  // 决策结论
+  decisions: Decision[]
+  // 讨论要点
+  discussionPoints: string[]
+  // 风险点
+  risks: Risk[]
+  // 时间线
+  timeline: TimelineItem[]
+  // 原始内容摘要
+  summary?: string
+  generatedAt: number
+}
+
+export interface TodoItem {
+  task: string
+  assignee?: string
+  deadline?: string
+  priority?: 'high' | 'medium' | 'low'
+  status?: 'pending' | 'in-progress' | 'completed'
+}
+
+export interface Decision {
+  content: string
+  rationale?: string
+  decisionMaker?: string
+}
+
+export interface Risk {
+  description: string
+  impact?: string
+  mitigation?: string
+  severity?: 'high' | 'medium' | 'low'
+}
+
+export interface TimelineItem {
+  time?: string
+  topic: string
+  speaker?: string
+  keyPoints?: string[]
 }

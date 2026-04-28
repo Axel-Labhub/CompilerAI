@@ -19,6 +19,7 @@ import {
   DreamCycleReport,
   GraphView,
   HandoverModal,
+  MeetingNotesModal,
   ToastProvider,
 } from './components'
 import { 
@@ -33,7 +34,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { initDB } from './lib/db'
 import { runDreamCycle } from './lib/dreamCycle'
 import { showToastGlobal } from './lib/toast'
-import type { Note, NoteTemplate, SearchFilters, ExportFormat, CompiledSection, DreamCycleReport as DreamCycleReportType } from './types'
+import type { Note, NoteTemplate, SearchFilters, ExportFormat, ExportOptions, CompiledSection, DreamCycleReport as DreamCycleReportType } from './types'
 
 // App 主组件
 function App() {
@@ -114,6 +115,9 @@ function App() {
 
   // 离职交接状态
   const [showHandover, setShowHandover] = useState(false)
+
+  // 会议纪要处理状态
+  const [showMeetingNotes, setShowMeetingNotes] = useState(false)
 
   // 搜索和筛选状态
   const [searchQuery, setSearchQuery] = useState('')
@@ -326,7 +330,7 @@ function App() {
   }, [toggleFavorite, loadFavoriteNotes])
 
   // 处理导出
-  const handleExport = useCallback((format: ExportFormat) => {
+  const handleExport = useCallback((format: ExportFormat, options: ExportOptions) => {
     if (!currentNote) return
     
     const noteToExport = {
@@ -336,16 +340,16 @@ function App() {
 
     switch (format) {
       case 'md':
-        exportAsMarkdown(noteToExport)
+        exportAsMarkdown(noteToExport, options)
         showToastGlobal('导出 Markdown 成功', 'success')
         break
       case 'html':
-        exportAsHTML(noteToExport)
+        exportAsHTML(noteToExport, options)
         showToastGlobal('导出 HTML 成功', 'success')
         break
       case 'pdf':
-        exportAsPDF(noteToExport)
-        showToastGlobal('导出 PDF 成功', 'success')
+        exportAsPDF(noteToExport, options)
+        showToastGlobal('导出 PDF 成功，请在弹窗中打印或保存为 PDF', 'info')
         break
     }
   }, [currentNote, exportAsMarkdown, exportAsHTML, exportAsPDF])
@@ -452,6 +456,7 @@ function App() {
             onOpenWeeklyReport={handleOpenWeeklyReport}
             onOpenDreamCycle={handleOpenDreamCycle}
             onOpenHandover={() => setShowHandover(true)}
+            onOpenMeetingNotes={() => setShowMeetingNotes(true)}
             onOpenGraph={() => setShowGraph(true)}
             noteCount={notes.length}
             favoriteCount={favoriteCount}
@@ -579,6 +584,13 @@ function App() {
       {showHandover && (
         <HandoverModal
           onClose={() => setShowHandover(false)}
+        />
+      )}
+
+      {/* 会议纪要处理 */}
+      {showMeetingNotes && (
+        <MeetingNotesModal
+          onClose={() => setShowMeetingNotes(false)}
         />
       )}
     </div>

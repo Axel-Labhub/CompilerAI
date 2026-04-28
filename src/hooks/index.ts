@@ -4,9 +4,10 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import type { Note, TagSuggestion, WeeklyReport, NoteVersion, SearchFilters, Theme, ViewMode } from '../types'
+import type { Note, TagSuggestion, WeeklyReport, NoteVersion, SearchFilters, Theme, ViewMode, ExportOptions } from '../types'
 import * as db from '../lib/db'
 import { aiCleanText, aiSuggestTags, aiGenerateWeeklyReport } from '../lib/ai'
+import { downloadMarkdown, downloadHTML, downloadPDF, defaultExportOptions } from '../lib/export'
 
 // ==================== 主题 Hook ====================
 
@@ -553,90 +554,18 @@ export function useNoteLinks(noteId: string | null) {
  */
 export function useExport() {
   // 导出为 Markdown
-  const exportAsMarkdown = useCallback((note: Note) => {
-    const blob = new Blob([note.content], { type: 'text/markdown;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${note.title || '笔记'}.md`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+  const exportAsMarkdown = useCallback((note: Note, options: ExportOptions = defaultExportOptions) => {
+    downloadMarkdown(note, options)
   }, [])
 
   // 导出为 HTML
-  const exportAsHTML = useCallback((note: Note) => {
-    const html = `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${note.title}</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
-    h1 { border-bottom: 2px solid #333; padding-bottom: 10px; }
-    h2 { margin-top: 30px; }
-    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
-    pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
-    blockquote { border-left: 4px solid #0ea5e9; margin: 0; padding-left: 15px; color: #666; }
-    .tags { margin-top: 20px; }
-    .tag { display: inline-block; background: #e0f2fe; padding: 4px 12px; border-radius: 15px; margin-right: 8px; font-size: 14px; }
-  </style>
-</head>
-<body>
-  <h1>${note.title}</h1>
-  ${note.tags.length > 0 ? `<div class="tags">${note.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
-  <div class="content">${note.content}</div>
-</body>
-</html>`
-    
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${note.title || '笔记'}.html`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+  const exportAsHTML = useCallback((note: Note, options: ExportOptions = defaultExportOptions) => {
+    downloadHTML(note, options)
   }, [])
 
   // 导出为 PDF（使用打印功能）
-  const exportAsPDF = useCallback((note: Note) => {
-    // 创建打印样式
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) {
-      alert('请允许弹出窗口以导出 PDF')
-      return
-    }
-    
-    printWindow.document.write(`<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <title>${note.title}</title>
-  <style>
-    @media print {
-      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-      h1 { font-size: 24px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-      h2 { font-size: 20px; margin-top: 25px; }
-      code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
-      pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
-      blockquote { border-left: 4px solid #0ea5e9; margin: 0; padding-left: 15px; color: #666; }
-    }
-    .tags { margin-top: 15px; margin-bottom: 20px; }
-    .tag { display: inline-block; background: #e0f2fe; padding: 4px 12px; border-radius: 15px; margin-right: 8px; font-size: 12px; }
-  </style>
-</head>
-<body>
-  <h1>${note.title}</h1>
-  ${note.tags.length > 0 ? `<div class="tags">${note.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
-  <div class="content">${note.content.replace(/\n/g, '<br>')}</div>
-  <script>window.onload = () => { window.print(); }</script>
-</body>
-</html>`)
-    printWindow.document.close()
+  const exportAsPDF = useCallback((note: Note, options: ExportOptions = defaultExportOptions) => {
+    downloadPDF(note, options)
   }, [])
 
   return { exportAsMarkdown, exportAsHTML, exportAsPDF }
