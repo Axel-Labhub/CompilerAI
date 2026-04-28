@@ -96,7 +96,7 @@ export const Header: React.FC<HeaderProps> = ({
               placeholder="搜索笔记... (Ctrl+F)"
               value={localQuery}
               onChange={(e) => setLocalQuery(e.target.value)}
-              className="w-full pl-10 pr-24 py-2 bg-app-bg border border-app-border rounded-lg text-sm text-app-text placeholder-app-muted focus:outline-none focus:border-primary-500 transition-colors"
+              className="w-full pl-10 pr-24 py-2 bg-app-bg border border-app-border rounded-lg text-sm text-app-text placeholder-app-muted transition-all duration-200 search-input"
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
               <button

@@ -79,10 +79,10 @@ const ToastContainer: React.FC<{ toasts: Toast[]; onHide: (id: string) => void }
 // 单个 Toast 项
 const ToastItem: React.FC<{ toast: Toast; onHide: () => void }> = ({ toast, onHide }) => {
   const bgColors = {
-    success: 'bg-green-600',
-    error: 'bg-red-600',
-    info: 'bg-blue-600',
-    warning: 'bg-yellow-600',
+    success: 'bg-gradient-to-r from-green-600 to-emerald-600 border border-green-500/50',
+    error: 'bg-gradient-to-r from-red-600 to-rose-600 border border-red-500/50',
+    info: 'bg-gradient-to-r from-blue-600 to-cyan-600 border border-blue-500/50',
+    warning: 'bg-gradient-to-r from-yellow-600 to-orange-600 border border-yellow-500/50',
   }
 
   const icons = {
@@ -95,9 +95,6 @@ const ToastItem: React.FC<{ toast: Toast; onHide: () => void }> = ({ toast, onHi
   return (
     <div
       className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white ${bgColors[toast.type]} animate-slide-in-right`}
-      style={{
-        animation: 'slideInRight 0.3s ease-out',
-      }}
     >
       <span className="text-lg">{icons[toast.type]}</span>
       <span className="text-sm font-medium">{toast.message}</span>

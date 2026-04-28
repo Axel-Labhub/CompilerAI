@@ -102,7 +102,7 @@ export const NoteCompiledSection: React.FC<NoteCompiledSectionProps> = ({
                          hover:from-purple-500 hover:to-indigo-500 disabled:from-purple-600/50 disabled:to-indigo-600/50
                          text-white rounded-lg transition-all duration-200 
                          flex items-center gap-2 shadow-lg shadow-purple-500/30
-                         hover:shadow-purple-500/50 hover:scale-105 active:scale-95"
+                         hover:shadow-purple-500/50 hover:-translate-y-0.5 active:scale-95"
             >
               {isCompiling ? (
                 <>
@@ -190,7 +190,7 @@ export const NoteCompiledSection: React.FC<NoteCompiledSectionProps> = ({
             disabled={isCompiling}
             className="px-3 py-1.5 text-xs bg-purple-600/50 hover:bg-purple-500/50 disabled:opacity-50
                        text-white rounded-lg transition-all flex items-center gap-1.5
-                       hover:scale-105 active:scale-95"
+                       hover:-translate-y-0.5 active:scale-95"
             title="重新编译"
           >
             {isCompiling ? (

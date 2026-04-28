@@ -164,8 +164,8 @@ const NoteCard: React.FC<NoteCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-app-card border rounded-lg p-4 cursor-pointer transition-all hover:border-primary-500/50 ${
-        isSelected ? 'border-primary-500 bg-primary-500/10' : 'border-app-border'
+      className={`group relative bg-app-card border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary-500/10 ${
+        isSelected ? 'border-primary-500 bg-primary-500/10' : 'border-app-border hover:border-primary-500/50'
       } ${note.isPinned ? 'border-l-2 border-l-yellow-500' : ''}`}
       onClick={onClick}
     >

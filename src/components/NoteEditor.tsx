@@ -469,10 +469,10 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
           {/* AI 功能 */}
           <button
             onClick={() => setShowAiPanel(!showAiPanel)}
-            className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 transition-all duration-200 hover:scale-105 ${
               showAiPanel 
-                ? 'bg-primary-500/20 text-primary-400' 
-                : 'hover:bg-app-border text-app-muted hover:text-app-text'
+                ? 'bg-gradient-to-r from-primary-500 to-indigo-500 text-white shadow-lg shadow-primary-500/30' 
+                : 'bg-gradient-to-r from-primary-500/20 to-indigo-500/20 text-primary-400 hover:from-primary-500/30 hover:to-indigo-500/30'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -509,7 +509,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
           <button
             onClick={handleSave}
             disabled={!title.trim() || saving}
-            className="px-4 py-1.5 bg-primary-600 hover:bg-primary-700 disabled:bg-app-border disabled:text-app-muted text-white rounded-lg text-sm font-medium transition-colors"
+            className="px-4 py-1.5 bg-gradient-to-r from-primary-500 to-indigo-500 hover:from-primary-600 hover:to-indigo-600 disabled:from-app-border disabled:to-app-border disabled:text-app-muted text-white rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 active:scale-[0.98]"
           >
             保存
           </button>
@@ -528,14 +528,14 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
               <button
                 onClick={handleAIClean}
                 disabled={aiProcessing || !content.trim()}
-                className="px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-sm hover:bg-green-500/30 disabled:opacity-50 transition-colors"
+                className="px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-sm hover:bg-green-500/30 disabled:opacity-50 transition-all duration-200 hover:shadow-lg hover:shadow-green-500/20 hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 ✨ 一键清洗
               </button>
               <button
                 onClick={handleAITags}
                 disabled={aiProcessing || (!title.trim() && !content.trim())}
-                className="px-3 py-1.5 bg-purple-500/20 text-purple-400 rounded-lg text-sm hover:bg-purple-500/30 disabled:opacity-50 transition-colors"
+                className="px-3 py-1.5 bg-purple-500/20 text-purple-400 rounded-lg text-sm hover:bg-purple-500/30 disabled:opacity-50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/20 hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 🏷️ 智能标签
               </button>
