@@ -112,7 +112,7 @@ function App() {
 
   // 激活码状态
   const [showActivation, setShowActivation] = useState(false)
-  const [isLicenseActive, setIsLicenseActive] = useState(false)
+  const [isLicenseActive, setIsLicenseActive] = useState(true) // TODO: 开发调试模式，正式上线改为 false
 
   // 检查激活状态
   const checkLicense = useCallback(async () => {
