@@ -4,7 +4,7 @@
  * 已接入豆包 API (Doubao-Seed-2.0-lite)
  */
 
-import type { Note, TagSuggestion, WeeklyReport } from '../types'
+import type { Note, TagSuggestion, WeeklyReport, HandoverReport } from '../types'
 import { getAIConfig, isAIConfigured } from './ai-config'
 
 // 获取当前 AI 配置
@@ -1801,4 +1801,466 @@ export async function aiExtractInsights(content: string): Promise<{
     coreConclusion,
     keyInsights: keyInsights.map(s => s.trim()).filter(Boolean),
   }
+}
+
+
+// ==================== AI 离职交接报告生成 ====================
+
+/**
+ * 离职交接信息输入
+ */
+export interface HandoverInput {
+  employeeName: string
+  department: string
+  position: string
+  lastWorkDate: string
+  handoverDate: string
+  projects?: string      // 正在进行的项目列表
+  contacts?: string       // 对接人联系方式
+  todos?: string         // 未完成事项
+  documents?: string    // 重要文档位置
+  accounts?: string     // 账号密码记录
+  reminders?: string     // 注意事项
+  additionalNotes?: string // 其他补充说明
+}
+
+/**
+ * AI 生成离职交接报告
+ * @param input 离职交接相关信息
+ * @returns 生成的交接报告内容
+ */
+export async function aiGenerateHandover(input: HandoverInput): Promise<HandoverReport> {
+  // 如果配置了 API，使用真实 AI
+  if (isAIConfigured()) {
+    const systemPrompt = `你是一个专业的 HR 离职交接文档专家，负责根据用户提供的离职相关信息，生成结构化、专业的交接文档。
+
+## 核心原则
+1. **严谨专业**：使用正式、专业的职场语言
+2. **结构清晰**：严格按照指定格式输出，各部分层次分明
+3. **信息完整**：确保交接内容无遗漏、不模糊
+4. **保密意识**：注意敏感信息处理，账号密码部分需提示加密
+
+## 语气与风格
+- 语气：正式、客观、专业
+- 人称：第三人称为主
+- 格式：Markdown 格式，便于阅读和打印
+
+## 交接文档结构
+
+### 1. 基本信息
+- 离职员工姓名
+- 部门与岗位
+- 最后工作日
+- 交接日期
+
+### 2. 项目交接清单
+列出所有正在进行的项目，每个项目包含：
+- 项目名称
+- 项目描述与当前进展
+- 项目状态（进行中/已完成/暂停/待交接）
+- 对接人联系方式
+- 关键里程碑
+- 相关文档位置
+- 注意事项
+
+### 3. 待办事项列表（带优先级）
+按优先级排序：
+- 【高】紧急且重要
+- 【中】重要但不紧急
+- 【低】可延后处理
+每项包含：任务描述、截止时间、负责人
+
+### 4. 联系人列表
+按部门分类：
+- 姓名
+- 职位
+- 部门
+- 联系方式（电话/邮箱/微信）
+- 职责说明
+
+### 5. 文档索引
+重要文档清单：
+- 文档名称
+- 存放位置
+- 最后更新时间
+- 内容说明
+
+### 6. 重要提醒
+按类别分组：
+- 【账号】需交接的系统账号
+- 【权限】需撤销的系统权限
+- 【合同】待处理的合同事项
+- 【设备】需归还的办公设备
+- 【其他】其他重要提醒
+
+### 7. 账号密码记录（加密处理）
+⚠️ 注意：此部分内容敏感，生成时需：
+- 账号系统名称
+- 用户名
+- 访问权限级别
+- 交接说明（密码由交接人当面告知，不写入文档）
+
+### 8. 补充说明
+其他需要交代但不属于以上分类的内容
+
+## 保密提醒（必须包含）
+在文档末尾添加保密提醒：
+"本交接文档包含公司及项目敏感信息，请妥善保管，仅限交接相关人员查阅。账号密码等敏感信息请通过安全渠道传递，禁止通过邮件或即时通讯工具发送。"
+
+## 输出格式（必须是有效JSON）
+{
+  "title": "员工离职交接报告 - [姓名]",
+  "employeeName": "姓名",
+  "department": "部门",
+  "position": "岗位",
+  "lastWorkDate": "最后工作日",
+  "handoverDate": "交接日期",
+  "projects": [
+    {
+      "name": "项目名称",
+      "description": "项目描述",
+      "status": "进行中/已完成/暂停/待交接",
+      "progress": "当前进展",
+      "contactPerson": "对接人",
+      "keyMilestones": ["里程碑1", "里程碑2"],
+      "documents": ["文档1位置", "文档2位置"],
+      "notes": "注意事项"
+    }
+  ],
+  "contacts": [
+    {
+      "name": "姓名",
+      "role": "职位",
+      "department": "部门",
+      "phone": "电话",
+      "email": "邮箱",
+      "wechat": "微信",
+      "responsibilities": "职责说明"
+    }
+  ],
+  "todos": [
+    {
+      "task": "任务描述",
+      "priority": "高/中/低",
+      "deadline": "截止时间",
+      "assignee": "负责人",
+      "status": "待处理/进行中/已完成"
+    }
+  ],
+  "documents": [
+    {
+      "name": "文档名称",
+      "location": "存放位置",
+      "description": "内容说明",
+      "lastUpdated": "最后更新时间"
+    }
+  ],
+  "reminders": [
+    {
+      "category": "账号/权限/合同/设备/其他",
+      "title": "提醒标题",
+      "description": "提醒内容",
+      "action": "建议行动"
+    }
+  ],
+  "additionalNotes": "补充说明内容"
+}
+
+## 注意事项
+- 只输出JSON对象，不要任何解释或前缀文字
+- 确保JSON格式正确，可被解析
+- 如果某项信息未提供，填写"待补充"
+- projects、contacts、todos、documents、reminders数组长度根据实际情况定
+- 重要提醒中必须包含账号和权限相关的提醒`
+
+    try {
+      const userContent = `
+## 员工基本信息
+- 姓名：${input.employeeName}
+- 部门：${input.department}
+- 岗位：${input.position}
+- 最后工作日：${input.lastWorkDate}
+- 交接日期：${input.handoverDate}
+
+## 正在进行的项目
+${input.projects || '待补充'}
+
+## 对接人联系方式
+${input.contacts || '待补充'}
+
+## 未完成事项
+${input.todos || '待补充'}
+
+## 重要文档位置
+${input.documents || '待补充'}
+
+## 账号密码记录
+${input.accounts || '无'}
+
+## 注意事项
+${input.reminders || '无'}
+
+## 其他补充说明
+${input.additionalNotes || '无'}
+`
+
+      const result = await callDoubaoAPI(
+        systemPrompt,
+        userContent,
+        { max_tokens: 2000 }
+      )
+      
+      if (!result) {
+        throw new AIError(AIErrorType.PARSE_ERROR, 'API 返回为空')
+      }
+      
+      const report = JSON.parse(result)
+      return {
+        ...report,
+        generatedAt: Date.now(),
+      }
+    } catch (error) {
+      if (error instanceof AIError) {
+        console.warn(`${getAIErrorMessage(error)}，使用本地模拟实现`)
+      } else if (error instanceof SyntaxError) {
+        console.warn('AI 交接报告格式解析失败，使用本地模拟实现')
+      } else {
+        console.warn('AI 交接报告生成失败，使用本地模拟实现')
+      }
+    }
+  }
+
+  // 未配置 API 或解析失败，使用模拟实现
+  await delay(SIMULATE_DELAY)
+  
+  // 构建模拟报告
+  const mockReport: HandoverReport = {
+    title: `员工离职交接报告 - ${input.employeeName}`,
+    employeeName: input.employeeName,
+    department: input.department,
+    position: input.position,
+    lastWorkDate: input.lastWorkDate,
+    handoverDate: input.handoverDate,
+    projects: input.projects ? [{
+      name: '待补充项目',
+      description: input.projects.slice(0, 200),
+      status: '待交接',
+      progress: '根据提供信息整理',
+      contactPerson: '待确定',
+    }] : [],
+    contacts: input.contacts ? [{
+      name: '待补充联系人',
+      role: '待确定',
+      department: input.department,
+      responsibilities: input.contacts.slice(0, 100),
+    }] : [],
+    todos: input.todos ? [{
+      task: input.todos.slice(0, 100),
+      priority: '高',
+      status: '待处理',
+    }] : [],
+    documents: input.documents ? [{
+      name: '待补充文档',
+      location: input.documents.slice(0, 100),
+      description: '根据提供信息整理',
+    }] : [],
+    reminders: [
+      {
+        category: '账号',
+        title: '系统账号交接',
+        description: '请确保所有系统账号完成交接',
+        action: '联系IT部门协助处理',
+      },
+      {
+        category: '权限',
+        title: '权限撤销',
+        description: '离职后需撤销所有系统权限',
+        action: '由HR发起权限撤销流程',
+      },
+      {
+        category: '设备',
+        title: '办公设备归还',
+        description: '归还笔记本电脑、手机、门禁卡等',
+        action: '联系行政部办理归还手续',
+      },
+    ],
+    additionalNotes: input.additionalNotes || '无',
+    generatedAt: Date.now(),
+  }
+  
+  return mockReport
+}
+
+/**
+ * 构建离职交接报告内容（Markdown格式）
+ * @param report 交接报告数据
+ * @returns Markdown格式的交接文档
+ */
+export function buildHandoverContent(report: HandoverReport): string {
+  const sections: string[] = []
+
+  // 标题
+  sections.push(`# ${report.title}`)
+  sections.push('')
+  sections.push(`**生成时间**：${new Date(report.generatedAt).toLocaleString('zh-CN')}`)
+  sections.push('')
+  sections.push('---')
+  sections.push('')
+
+  // 基本信息
+  sections.push('## 📋 基本信息')
+  sections.push('')
+  sections.push(`| 项目 | 内容 |`)
+  sections.push(`| --- | --- |`)
+  sections.push(`| 离职员工 | ${report.employeeName} |`)
+  sections.push(`| 部门 | ${report.department} |`)
+  sections.push(`| 岗位 | ${report.position} |`)
+  sections.push(`| 最后工作日 | ${report.lastWorkDate} |`)
+  sections.push(`| 交接日期 | ${report.handoverDate} |`)
+  sections.push('')
+
+  // 项目交接清单
+  sections.push('## 📁 项目交接清单')
+  sections.push('')
+  
+  if (report.projects && report.projects.length > 0) {
+    report.projects.forEach((project, index) => {
+      sections.push(`### ${index + 1}. ${project.name}`)
+      sections.push('')
+      sections.push(`- **项目描述**：${project.description}`)
+      sections.push(`- **当前状态**：${project.status}`)
+      sections.push(`- **进展**：${project.progress}`)
+      sections.push(`- **对接人**：${project.contactPerson}`)
+      if (project.keyMilestones && project.keyMilestones.length > 0) {
+        sections.push(`- **关键里程碑**：`)
+        project.keyMilestones.forEach(m => sections.push(`  - ${m}`))
+      }
+      if (project.documents && project.documents.length > 0) {
+        sections.push(`- **相关文档**：`)
+        project.documents.forEach(d => sections.push(`  - ${d}`))
+      }
+      if (project.notes) {
+        sections.push(`- **注意事项**：${project.notes}`)
+      }
+      sections.push('')
+    })
+  } else {
+    sections.push('暂无项目交接')
+    sections.push('')
+  }
+
+  // 待办事项
+  sections.push('## ✅ 待办事项列表')
+  sections.push('')
+  
+  if (report.todos && report.todos.length > 0) {
+    // 按优先级分组
+    const priorityOrder = ['高', '中', '低']
+    priorityOrder.forEach(priority => {
+      const items = report.todos.filter(t => t.priority === priority)
+      if (items.length > 0) {
+        sections.push(`### 【${priority}优先级】`)
+        sections.push('')
+        items.forEach((todo, index) => {
+          sections.push(`${index + 1}. ${todo.task}`)
+          if (todo.deadline) sections.push(`   - 截止时间：${todo.deadline}`)
+          if (todo.assignee) sections.push(`   - 负责人：${todo.assignee}`)
+          sections.push('')
+        })
+      }
+    })
+  } else {
+    sections.push('暂无待办事项')
+    sections.push('')
+  }
+
+  // 联系人列表
+  sections.push('## 👥 联系人列表')
+  sections.push('')
+  
+  if (report.contacts && report.contacts.length > 0) {
+    report.contacts.forEach((contact, index) => {
+      sections.push(`### ${index + 1}. ${contact.name}`)
+      sections.push('')
+      sections.push(`- **职位**：${contact.role}`)
+      sections.push(`- **部门**：${contact.department}`)
+      if (contact.phone) sections.push(`- **电话**：${contact.phone}`)
+      if (contact.email) sections.push(`- **邮箱**：${contact.email}`)
+      if (contact.wechat) sections.push(`- **微信**：${contact.wechat}`)
+      sections.push(`- **职责**：${contact.responsibilities}`)
+      sections.push('')
+    })
+  } else {
+    sections.push('暂无联系人信息')
+    sections.push('')
+  }
+
+  // 文档索引
+  sections.push('## 📄 文档索引')
+  sections.push('')
+  
+  if (report.documents && report.documents.length > 0) {
+    report.documents.forEach((doc, index) => {
+      sections.push(`${index + 1}. **${doc.name}**`)
+      sections.push(`   - 位置：${doc.location}`)
+      sections.push(`   - 说明：${doc.description}`)
+      if (doc.lastUpdated) sections.push(`   - 更新时间：${doc.lastUpdated}`)
+      sections.push('')
+    })
+  } else {
+    sections.push('暂无文档索引')
+    sections.push('')
+  }
+
+  // 重要提醒
+  sections.push('## ⚠️ 重要提醒')
+  sections.push('')
+  
+  if (report.reminders && report.reminders.length > 0) {
+    const categoryIcons: Record<string, string> = {
+      '账号': '🔐',
+      '权限': '🔑',
+      '合同': '📝',
+      '设备': '💻',
+      '其他': '📌',
+    }
+    
+    report.reminders.forEach((reminder) => {
+      const icon = categoryIcons[reminder.category] || '📌'
+      sections.push(`### ${icon} 【${reminder.category}】${reminder.title}`)
+      sections.push('')
+      sections.push(`${reminder.description}`)
+      if (reminder.action) {
+        sections.push('')
+        sections.push(`**建议行动**：${reminder.action}`)
+      }
+      sections.push('')
+    })
+  } else {
+    sections.push('暂无重要提醒')
+    sections.push('')
+  }
+
+  // 补充说明
+  if (report.additionalNotes) {
+    sections.push('## 📝 补充说明')
+    sections.push('')
+    sections.push(report.additionalNotes)
+    sections.push('')
+  }
+
+  // 保密提醒
+  sections.push('---')
+  sections.push('')
+  sections.push('## 🔒 保密提醒')
+  sections.push('')
+  sections.push('> ⚠️ **注意**：本交接文档包含公司及项目敏感信息，请妥善保管，仅限交接相关人员查阅。')
+  sections.push('')
+  sections.push('> 🔐 账号密码等敏感信息请通过安全渠道传递，**禁止通过邮件或即时通讯工具发送**。')
+  sections.push('')
+  sections.push('---')
+  sections.push('')
+  sections.push(`*本文档由编译器自动生成 | ${new Date().toLocaleDateString('zh-CN')}*`)
+
+  return sections.join('\n')
 }

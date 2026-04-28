@@ -18,19 +18,24 @@ import {
   Favorites,
   DreamCycleReport,
   GraphView,
+  HandoverModal,
+  ToastProvider,
 } from './components'
 import { 
   useNotes, 
   useEditor, 
   useWeeklyReportSelection, 
   useTheme, 
-  useKeyboardShortcuts,
   useExport,
 } from './hooks'
+// 独立导入 useKeyboardShortcuts 以支持更多功能
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { initDB } from './lib/db'
 import { runDreamCycle } from './lib/dreamCycle'
+import { showToastGlobal } from './lib/toast'
 import type { Note, NoteTemplate, SearchFilters, ExportFormat, CompiledSection, DreamCycleReport as DreamCycleReportType } from './types'
 
+// App 主组件
 function App() {
   // 数据库初始化状态
   const [_dbReady, setDbReady] = useState(false)
@@ -107,17 +112,8 @@ function App() {
   // 关系图谱状态
   const [showGraph, setShowGraph] = useState(false)
 
-  // 激活码状态（已禁用 for MVP）
-
-  // 检查激活状态（已禁用 for MVP）
-  // const checkLicense = useCallback(async () => {
-  //   const status = await getLicenseStatus()
-  //   setIsLicenseActive(status.isActivated)
-  // }, [])
-
-  // useEffect(() => {
-  //   checkLicense()
-  // }, [checkLicense])
+  // 离职交接状态
+  const [showHandover, setShowHandover] = useState(false)
 
   // 搜索和筛选状态
   const [searchQuery, setSearchQuery] = useState('')
@@ -143,11 +139,57 @@ function App() {
     loadFavoriteNotes()
   }, [notes, loadFavoriteNotes])
 
+  // AI 清洗处理函数
+  const [isAICleaning, setIsAICleaning] = useState(false)
+  const handleAIClean = useCallback(async () => {
+    if (!currentNote || viewMode !== 'editor' || isAICleaning) return
+    
+    setIsAICleaning(true)
+    try {
+      window.dispatchEvent(new CustomEvent('ai-clean', { 
+        detail: { noteId: currentNote.id } 
+      }))
+      showToastGlobal('正在清洗内容...', 'info')
+    } catch (err) {
+      console.error('AI 清洗失败:', err)
+      showToastGlobal('AI 清洗失败', 'error')
+    } finally {
+      setIsAICleaning(false)
+    }
+  }, [currentNote, viewMode, isAICleaning])
+
+  // AI 编译真相处理函数
+  const [isAICompiling, setIsAICompiling] = useState(false)
+  const handleAICompile = useCallback(async () => {
+    if (!currentNote || viewMode !== 'editor' || isAICompiling) return
+    
+    setIsAICompiling(true)
+    try {
+      window.dispatchEvent(new CustomEvent('ai-compile', { 
+        detail: { noteId: currentNote.id } 
+      }))
+      showToastGlobal('正在编译真相...', 'info')
+    } catch (err) {
+      console.error('AI 编译失败:', err)
+      showToastGlobal('AI 编译失败', 'error')
+    } finally {
+      setIsAICompiling(false)
+    }
+  }, [currentNote, viewMode, isAICompiling])
+
+  // 生成周报处理函数
+  const handleWeeklyReport = useCallback(() => {
+    if (viewMode !== 'list') return
+    handleOpenWeeklyReport()
+    showToastGlobal('正在打开周报生成器...', 'info')
+  }, [viewMode])
+
   // 全局快捷键
   useKeyboardShortcuts({
     onSave: () => {
       if (viewMode === 'editor') {
-        // 触发保存
+        window.dispatchEvent(new CustomEvent('editor-save'))
+        showToastGlobal('保存中...', 'info')
       }
     },
     onNew: () => {
@@ -156,7 +198,8 @@ function App() {
       }
     },
     onSearch: () => {
-      // 聚焦搜索框
+      const searchInput = document.querySelector('input[placeholder*="搜索"]') as HTMLInputElement
+      searchInput?.focus()
     },
     onPreview: () => {
       if (viewMode === 'editor') {
@@ -169,8 +212,11 @@ function App() {
       }
     },
     onHelp: () => {
-      setShowHelp(true)
+      setShowHelp(prev => !prev)
     },
+    onAIClean: handleAIClean,
+    onAICompile: handleAICompile,
+    onWeeklyReport: handleWeeklyReport,
   })
 
   // 处理搜索
@@ -226,17 +272,15 @@ function App() {
   const handleSave = useCallback(async (title: string, content: string, tags: string[], compiledSection?: CompiledSection | null) => {
     markSaving()
     if (currentNote && currentNote.id) {
-      // 更新现有笔记
       await updateNote(currentNote.id, { title, content, tags, compiledSection })
     } else {
-      // 创建新笔记
       const newNote = await createNote(title, content, tags)
       if (newNote) {
         setCurrentNote(newNote)
       }
     }
     markSaved()
-    loadFavoriteNotes() // 刷新收藏
+    loadFavoriteNotes()
   }, [currentNote, createNote, updateNote, setCurrentNote, markSaving, markSaved, loadFavoriteNotes])
 
   // 删除笔记
@@ -247,6 +291,7 @@ function App() {
         closeEditor()
       }
       loadFavoriteNotes()
+      showToastGlobal('笔记已删除', 'success')
     }
   }, [currentNote, deleteNote, closeEditor, loadFavoriteNotes])
 
@@ -292,12 +337,15 @@ function App() {
     switch (format) {
       case 'md':
         exportAsMarkdown(noteToExport)
+        showToastGlobal('导出 Markdown 成功', 'success')
         break
       case 'html':
         exportAsHTML(noteToExport)
+        showToastGlobal('导出 HTML 成功', 'success')
         break
       case 'pdf':
         exportAsPDF(noteToExport)
+        showToastGlobal('导出 PDF 成功', 'success')
         break
     }
   }, [currentNote, exportAsMarkdown, exportAsHTML, exportAsPDF])
@@ -316,8 +364,10 @@ function App() {
       const now = Date.now()
       setLastDreamRun(now)
       localStorage.setItem('lastDreamRun', now.toString())
+      showToastGlobal('梦境整理完成', 'success')
     } catch (err) {
       console.error('梦境循环运行失败:', err)
+      showToastGlobal('梦境循环失败', 'error')
     } finally {
       setIsDreamRunning(false)
     }
@@ -401,6 +451,7 @@ function App() {
             onNewNote={handleCreateNew}
             onOpenWeeklyReport={handleOpenWeeklyReport}
             onOpenDreamCycle={handleOpenDreamCycle}
+            onOpenHandover={() => setShowHandover(true)}
             onOpenGraph={() => setShowGraph(true)}
             noteCount={notes.length}
             favoriteCount={favoriteCount}
@@ -439,7 +490,6 @@ function App() {
               lastSavedAt={lastSavedAt}
               onToggleFavorite={currentNote?.id ? () => handleToggleFavorite(currentNote.id) : undefined}
               onExport={handleExport}
-  
             />
           </main>
         )}
@@ -524,8 +574,24 @@ function App() {
           }
         }}
       />
+
+      {/* 离职交接报告 */}
+      {showHandover && (
+        <HandoverModal
+          onClose={() => setShowHandover(false)}
+        />
+      )}
     </div>
   )
 }
 
-export default App
+// 包装组件 - 提供 Toast 功能
+function AppWithToast() {
+  return (
+    <ToastProvider>
+      <App />
+    </ToastProvider>
+  )
+}
+
+export default AppWithToast

@@ -64,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className="h-14 bg-dark-card border-b border-dark-border flex items-center px-4 gap-4">
+      <header className="h-14 bg-app-card border-b border-app-border flex items-center px-4 gap-4">
         {/* Logo 区域 */}
         <button 
           onClick={onLogoClick}
@@ -75,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div className="flex flex-col">
             <span className="font-semibold text-sm">编译器</span>
-            <span className="text-xs text-dark-muted">Compiler</span>
+            <span className="text-xs text-app-muted">Compiler</span>
           </div>
         </button>
 
@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex-1 max-w-xl">
           <div className="relative">
             <svg 
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-muted"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-app-muted"
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -96,12 +96,12 @@ export const Header: React.FC<HeaderProps> = ({
               placeholder="搜索笔记... (Ctrl+F)"
               value={localQuery}
               onChange={(e) => setLocalQuery(e.target.value)}
-              className="w-full pl-10 pr-24 py-2 bg-dark-bg border border-dark-border rounded-lg text-sm text-dark-text placeholder-dark-muted focus:outline-none focus:border-primary-500 transition-colors"
+              className="w-full pl-10 pr-24 py-2 bg-app-bg border border-app-border rounded-lg text-sm text-app-text placeholder-app-muted focus:outline-none focus:border-primary-500 transition-colors"
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
               <button
                 onClick={() => setShowFilters(true)}
-                className="p-1 rounded hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+                className="p-1 rounded hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
                 title="高级筛选"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +111,7 @@ export const Header: React.FC<HeaderProps> = ({
               {localQuery && (
                 <button
                   onClick={() => setLocalQuery('')}
-                  className="p-1 rounded hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+                  className="p-1 rounded hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -128,7 +128,7 @@ export const Header: React.FC<HeaderProps> = ({
           {favoriteCount > 0 && (
             <button
               onClick={showFavorites}
-              className="relative p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+              className="relative p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
               title="收藏夹"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* 快捷键帮助 */}
           <button
             onClick={() => {}}
-            className="p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
             title="快捷键 (?)"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +155,7 @@ export const Header: React.FC<HeaderProps> = ({
           <ThemeToggle theme={theme} onToggle={onThemeToggle} onSetTheme={onThemeChange} />
 
           {/* 右侧标语 */}
-          <div className="hidden sm:flex items-center gap-2 text-xs text-dark-muted">
+          <div className="hidden sm:flex items-center gap-2 text-xs text-app-muted">
             <span>你是你唯一的算法</span>
           </div>
         </div>

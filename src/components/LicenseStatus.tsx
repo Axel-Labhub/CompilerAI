@@ -58,8 +58,8 @@ export const LicenseStatus: React.FC<LicenseStatusProps> = ({
   // 加载中
   if (loading) {
     return (
-      <div className={`flex items-center gap-2 ${compact ? 'text-xs' : 'text-sm'} text-dark-muted`}>
-        <div className="w-4 h-4 border-2 border-dark-border border-t-primary-400 rounded-full animate-spin" />
+      <div className={`flex items-center gap-2 ${compact ? 'text-xs' : 'text-sm'} text-app-muted`}>
+        <div className="w-4 h-4 border-2 border-app-border border-t-primary-400 rounded-full animate-spin" />
         <span>检查中...</span>
       </div>
     )
@@ -128,7 +128,7 @@ export const LicenseStatus: React.FC<LicenseStatusProps> = ({
             <div className="font-medium text-green-400">
               {getLicenseTypeName(status.type!)}
             </div>
-            <div className="text-xs text-dark-muted">
+            <div className="text-xs text-app-muted">
               {status.daysRemaining === Infinity
                 ? '永久有效'
                 : formatDaysRemaining(status.daysRemaining)}
@@ -139,15 +139,15 @@ export const LicenseStatus: React.FC<LicenseStatusProps> = ({
         <div className="flex items-center gap-2">
           {status.type !== 'lifetime' && status.expiresAt && status.expiresAt !== -1 && (
             <div className="text-right mr-2">
-              <div className="text-xs text-dark-muted">到期时间</div>
-              <div className="text-sm text-dark-text">
+              <div className="text-xs text-app-muted">到期时间</div>
+              <div className="text-sm text-app-text">
                 {new Date(status.expiresAt).toLocaleDateString('zh-CN')}
               </div>
             </div>
           )}
           <button
             onClick={onActivateClick}
-            className="px-3 py-1.5 text-xs bg-dark-border hover:bg-dark-muted text-dark-text rounded-lg transition-colors"
+            className="px-3 py-1.5 text-xs bg-app-border hover:bg-app-muted text-app-text rounded-lg transition-colors"
           >
             续费
           </button>
@@ -194,15 +194,15 @@ export const FeatureLocked: React.FC<FeatureLockedProps> = ({
   onActivateClick,
 }) => {
   return (
-    <div className="flex items-center gap-3 p-4 bg-dark-card/50 border border-dark-border rounded-xl">
+    <div className="flex items-center gap-3 p-4 bg-app-card/50 border border-app-border rounded-xl">
       <div className="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
         <svg className="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       </div>
       <div className="flex-1">
-        <div className="text-sm text-dark-text font-medium">{featureName}</div>
-        <div className="text-xs text-dark-muted">需要激活才能使用</div>
+        <div className="text-sm text-app-text font-medium">{featureName}</div>
+        <div className="text-xs text-app-muted">需要激活才能使用</div>
       </div>
       <button
         onClick={onActivateClick}

@@ -28,7 +28,7 @@ export const SaveStatusIndicator: React.FC<SaveStatusIndicatorProps> = ({ status
             </svg>
             <span>已保存</span>
             {lastSavedAt && (
-              <span className="text-dark-muted">{formatTime(lastSavedAt)}</span>
+              <span className="text-app-muted">{formatTime(lastSavedAt)}</span>
             )}
           </div>
         )

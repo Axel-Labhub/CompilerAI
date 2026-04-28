@@ -132,19 +132,19 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
       />
 
       {/* 面板内容 */}
-      <div className="relative bg-dark-card border border-dark-border rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+      <div className="relative bg-app-card border border-app-border rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
         {/* 头部 */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-dark-border">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-app-border">
           <div className="flex items-center gap-2">
             <span className="text-lg">🔗</span>
-            <h2 className="text-lg font-semibold text-dark-text">反向链接</h2>
+            <h2 className="text-lg font-semibold text-app-text">反向链接</h2>
             <span className="px-2 py-0.5 bg-primary-500/20 text-primary-400 text-xs rounded-full">
               {backlinks.length}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="p-1 rounded hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -153,8 +153,8 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
         </div>
 
         {/* 当前笔记标题 */}
-        <div className="px-5 py-3 bg-dark-bg/50 border-b border-dark-border">
-          <p className="text-sm text-dark-muted truncate">
+        <div className="px-5 py-3 bg-app-bg/50 border-b border-app-border">
+          <p className="text-sm text-app-muted truncate">
             引用「{noteTitle || '无标题笔记'}」的笔记
           </p>
         </div>
@@ -163,7 +163,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
         <div className="max-h-80 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="flex items-center gap-2 text-dark-muted">
+              <div className="flex items-center gap-2 text-app-muted">
                 <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -172,7 +172,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
               </div>
             </div>
           ) : backlinks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-dark-muted">
+            <div className="flex flex-col items-center justify-center py-8 text-app-muted">
               <svg className="w-12 h-12 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
@@ -180,9 +180,9 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
               <p className="text-xs mt-1">在其他笔记中使用 [[{noteTitle || '笔记标题'}]] 引用</p>
             </div>
           ) : (
-            <div className="divide-y divide-dark-border">
+            <div className="divide-y divide-app-border">
               {backlinks.map(({ sourceNote, linkContext }) => (
-                <div key={sourceNote.id} className="hover:bg-dark-bg/50 transition-colors">
+                <div key={sourceNote.id} className="hover:bg-app-bg/50 transition-colors">
                   <button
                     onClick={() => onNavigate(sourceNote)}
                     className="w-full p-4 text-left"
@@ -193,7 +193,7 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
                           <svg className="w-4 h-4 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
-                          <span className="font-medium text-dark-text truncate">
+                          <span className="font-medium text-app-text truncate">
                             {sourceNote.title || '无标题笔记'}
                           </span>
                           {sourceNote.isFavorite && (
@@ -202,12 +202,12 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
                             </svg>
                           )}
                         </div>
-                        <p className="text-xs text-dark-muted line-clamp-2 font-mono">
+                        <p className="text-xs text-app-muted line-clamp-2 font-mono">
                           {highlightLink(linkContext)}
                         </p>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <span className="text-xs text-dark-muted whitespace-nowrap">
+                        <span className="text-xs text-app-muted whitespace-nowrap">
                           {formatTime(sourceNote.updatedAt)}
                         </span>
                         <svg className="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -232,9 +232,9 @@ export const BacklinksPanel: React.FC<BacklinksPanelProps> = ({
         </div>
 
         {/* 底部提示 */}
-        <div className="px-5 py-3 bg-dark-bg/50 border-t border-dark-border">
-          <p className="text-xs text-dark-muted text-center">
-            使用 <code className="px-1 py-0.5 bg-dark-card rounded text-primary-400">[[笔记标题]]</code> 在其他笔记中创建链接
+        <div className="px-5 py-3 bg-app-bg/50 border-t border-app-border">
+          <p className="text-xs text-app-muted text-center">
+            使用 <code className="px-1 py-0.5 bg-app-card rounded text-primary-400">[[笔记标题]]</code> 在其他笔记中创建链接
           </p>
         </div>
       </div>

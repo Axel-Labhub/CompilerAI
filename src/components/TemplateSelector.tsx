@@ -53,16 +53,16 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({ isOpen, onCl
       />
 
       {/* 面板内容 */}
-      <div className="relative bg-dark-card border border-dark-border rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+      <div className="relative bg-app-card border border-app-border rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
         {/* 头部 */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-dark-border">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-app-border">
           <div className="flex items-center gap-2">
             <span className="text-lg">📄</span>
-            <h2 className="text-lg font-semibold text-dark-text">选择模板</h2>
+            <h2 className="text-lg font-semibold text-app-text">选择模板</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="p-1 rounded hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -75,15 +75,15 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({ isOpen, onCl
           {/* 空白笔记 */}
           <button
             onClick={handleBlank}
-            className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-dark-border rounded-xl hover:border-primary-500/50 hover:bg-primary-500/5 transition-all text-center"
+            className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-app-border rounded-xl hover:border-primary-500/50 hover:bg-primary-500/5 transition-all text-center"
           >
-            <div className="w-12 h-12 rounded-full bg-dark-bg flex items-center justify-center mb-2">
-              <svg className="w-6 h-6 text-dark-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-full bg-app-bg flex items-center justify-center mb-2">
+              <svg className="w-6 h-6 text-app-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </div>
-            <span className="text-sm font-medium text-dark-text">空白笔记</span>
-            <span className="text-xs text-dark-muted mt-1">从零开始</span>
+            <span className="text-sm font-medium text-app-text">空白笔记</span>
+            <span className="text-xs text-app-muted mt-1">从零开始</span>
           </button>
 
           {/* 模板卡片 */}
@@ -91,20 +91,20 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({ isOpen, onCl
             <button
               key={template.id}
               onClick={() => handleSelect(template)}
-              className="flex flex-col items-start p-4 border border-dark-border rounded-xl hover:border-primary-500/50 hover:bg-primary-500/5 transition-all text-left"
+              className="flex flex-col items-start p-4 border border-app-border rounded-xl hover:border-primary-500/50 hover:bg-primary-500/5 transition-all text-left"
             >
               <div className="w-10 h-10 rounded-lg bg-primary-500/20 flex items-center justify-center mb-2">
                 <span className="text-lg">{template.icon}</span>
               </div>
-              <span className="text-sm font-medium text-dark-text">{template.name}</span>
-              <span className="text-xs text-dark-muted mt-1 line-clamp-2">{template.description}</span>
+              <span className="text-sm font-medium text-app-text">{template.name}</span>
+              <span className="text-xs text-app-muted mt-1 line-clamp-2">{template.description}</span>
             </button>
           ))}
         </div>
 
         {/* 底部提示 */}
-        <div className="px-5 py-3 bg-dark-bg/50 border-t border-dark-border">
-          <p className="text-xs text-dark-muted text-center">
+        <div className="px-5 py-3 bg-app-bg/50 border-t border-app-border">
+          <p className="text-xs text-app-muted text-center">
             选择模板快速创建结构化笔记
           </p>
         </div>

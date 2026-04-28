@@ -89,7 +89,7 @@ export const NoteList: React.FC<NoteListProps> = ({
   // 空状态
   if (!loading && notes.length === 0) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center text-dark-muted p-8">
+      <div className="flex-1 flex flex-col items-center justify-center text-app-muted p-8">
         <svg className="w-16 h-16 mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
@@ -164,8 +164,8 @@ const NoteCard: React.FC<NoteCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-dark-card border rounded-lg p-4 cursor-pointer transition-all hover:border-primary-500/50 ${
-        isSelected ? 'border-primary-500 bg-primary-500/10' : 'border-dark-border'
+      className={`group relative bg-app-card border rounded-lg p-4 cursor-pointer transition-all hover:border-primary-500/50 ${
+        isSelected ? 'border-primary-500 bg-primary-500/10' : 'border-app-border'
       } ${note.isPinned ? 'border-l-2 border-l-yellow-500' : ''}`}
       onClick={onClick}
     >
@@ -185,7 +185,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
           className={`absolute -left-1 top-4 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
             isSelected
               ? 'bg-primary-500 border-primary-500'
-              : 'border-dark-border group-hover:border-dark-muted'
+              : 'border-app-border group-hover:border-app-muted'
           }`}
         >
           {isSelected && (
@@ -204,12 +204,12 @@ const NoteCard: React.FC<NoteCardProps> = ({
       )}
 
       {/* 标题 */}
-      <h3 className="font-medium text-dark-text mb-1 pr-12 group-hover:text-primary-400 transition-colors">
+      <h3 className="font-medium text-app-text mb-1 pr-12 group-hover:text-primary-400 transition-colors">
         {searchQuery ? highlightText(note.title || '无标题笔记', searchQuery) : note.title || '无标题笔记'}
       </h3>
 
       {/* 内容预览 */}
-      <p className="text-sm text-dark-muted mb-2 line-clamp-2">
+      <p className="text-sm text-app-muted mb-2 line-clamp-2">
         {searchQuery ? highlightText(getPreview(note.content), searchQuery) : getPreview(note.content)}
       </p>
 
@@ -223,12 +223,12 @@ const NoteCard: React.FC<NoteCardProps> = ({
             </span>
           ))}
           {note.tags.length > 3 && (
-            <span className="text-xs text-dark-muted">+{note.tags.length - 3}</span>
+            <span className="text-xs text-app-muted">+{note.tags.length - 3}</span>
           )}
         </div>
 
         {/* 时间 */}
-        <span className="text-xs text-dark-muted">
+        <span className="text-xs text-app-muted">
           {formatTime(note.updatedAt)}
         </span>
       </div>
@@ -240,7 +240,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
             e.stopPropagation()
             setShowMenu(!showMenu)
           }}
-          className="p-1 rounded hover:bg-dark-border text-dark-muted hover:text-dark-text"
+          className="p-1 rounded hover:bg-app-border text-app-muted hover:text-app-text"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
@@ -248,14 +248,14 @@ const NoteCard: React.FC<NoteCardProps> = ({
         </button>
 
         {showMenu && (
-          <div className="absolute right-0 top-8 bg-dark-bg border border-dark-border rounded-lg shadow-lg py-1 z-10 min-w-[140px]">
+          <div className="absolute right-0 top-8 bg-app-bg border border-app-border rounded-lg shadow-lg py-1 z-10 min-w-[140px]">
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 onTogglePin()
                 setShowMenu(false)
               }}
-              className="w-full px-3 py-1.5 text-sm text-left hover:bg-dark-border flex items-center gap-2"
+              className="w-full px-3 py-1.5 text-sm text-left hover:bg-app-border flex items-center gap-2"
             >
               {note.isPinned ? '取消置顶' : '置顶'}
             </button>
@@ -266,7 +266,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
                   onToggleFavorite()
                   setShowMenu(false)
                 }}
-                className="w-full px-3 py-1.5 text-sm text-left hover:bg-dark-border flex items-center gap-2"
+                className="w-full px-3 py-1.5 text-sm text-left hover:bg-app-border flex items-center gap-2"
               >
                 {note.isFavorite ? '取消收藏' : '收藏'}
               </button>
@@ -277,7 +277,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
                 onDelete()
                 setShowMenu(false)
               }}
-              className="w-full px-3 py-1.5 text-sm text-left hover:bg-dark-border text-red-400 flex items-center gap-2"
+              className="w-full px-3 py-1.5 text-sm text-left hover:bg-app-border text-red-400 flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

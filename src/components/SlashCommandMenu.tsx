@@ -77,11 +77,11 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({ isOpen, posi
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-dark-card border border-dark-border rounded-lg shadow-xl w-64 overflow-hidden"
+      className="fixed z-50 bg-app-card border border-app-border rounded-lg shadow-xl w-64 overflow-hidden"
       style={{ top: position.top, left: position.left }}
     >
       {/* 搜索框 */}
-      <div className="p-2 border-b border-dark-border">
+      <div className="p-2 border-b border-app-border">
         <input
           type="text"
           value={search}
@@ -90,7 +90,7 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({ isOpen, posi
             setSelectedIndex(0)
           }}
           placeholder="搜索命令..."
-          className="w-full px-3 py-1.5 bg-dark-bg border border-dark-border rounded text-sm text-dark-text placeholder-dark-muted focus:outline-none focus:border-primary-500"
+          className="w-full px-3 py-1.5 bg-app-bg border border-app-border rounded text-sm text-app-text placeholder-app-muted focus:outline-none focus:border-primary-500"
           autoFocus
         />
       </div>
@@ -98,7 +98,7 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({ isOpen, posi
       {/* 命令列表 */}
       <div className="max-h-64 overflow-y-auto py-1">
         {filteredCommands.length === 0 ? (
-          <div className="px-3 py-2 text-sm text-dark-muted text-center">
+          <div className="px-3 py-2 text-sm text-app-muted text-center">
             未找到匹配的命令
           </div>
         ) : (
@@ -109,15 +109,15 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({ isOpen, posi
               className={`w-full px-3 py-2 flex items-center gap-3 text-left transition-colors ${
                 index === selectedIndex
                   ? 'bg-primary-500/20 text-primary-400'
-                  : 'hover:bg-dark-border/50 text-dark-text'
+                  : 'hover:bg-app-border/50 text-app-text'
               }`}
             >
-              <div className="w-8 h-8 rounded bg-dark-bg flex items-center justify-center text-sm font-mono">
+              <div className="w-8 h-8 rounded bg-app-bg flex items-center justify-center text-sm font-mono">
                 {cmd.icon}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium">{cmd.name}</div>
-                <div className="text-xs text-dark-muted truncate">{cmd.description}</div>
+                <div className="text-xs text-app-muted truncate">{cmd.description}</div>
               </div>
             </button>
           ))
@@ -125,7 +125,7 @@ export const SlashCommandMenu: React.FC<SlashCommandMenuProps> = ({ isOpen, posi
       </div>
 
       {/* 提示 */}
-      <div className="px-3 py-2 bg-dark-bg/50 border-t border-dark-border text-xs text-dark-muted">
+      <div className="px-3 py-2 bg-app-bg/50 border-t border-app-border text-xs text-app-muted">
         <span>↑↓ 选择</span>
         <span className="mx-2">·</span>
         <span>Enter 确认</span>

@@ -13,6 +13,7 @@ interface SidebarProps {
   onNewNote: () => void
   onOpenWeeklyReport: () => void
   onOpenDreamCycle: () => void
+  onOpenHandover: () => void
   onOpenGraph?: () => void
   noteCount: number
   favoriteCount?: number
@@ -27,6 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNewNote,
   onOpenWeeklyReport,
   onOpenDreamCycle,
+  onOpenHandover,
   onOpenGraph,
   noteCount,
   favoriteCount = 0,
@@ -34,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   lastDreamRun,
 }) => {
   return (
-    <aside className="w-56 bg-dark-card border-r border-dark-border flex flex-col h-full">
+    <aside className="w-56 bg-app-card border-r border-app-border flex flex-col h-full">
       {/* 新建笔记按钮 */}
       <div className="p-4">
         <button
@@ -50,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* 笔记统计 */}
       <div className="px-4 pb-3">
-        <div className="text-xs text-dark-muted">
+        <div className="text-xs text-app-muted">
           共 <span className="text-primary-400 font-medium">{noteCount}</span> 条笔记
         </div>
       </div>
@@ -63,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           className={`w-full px-3 py-2 rounded-lg text-left text-sm flex items-center gap-2 mb-1 transition-colors ${
             activeTag === null
               ? 'bg-primary-500/20 text-primary-400'
-              : 'text-dark-text hover:bg-dark-border/50'
+              : 'text-app-text hover:bg-app-border/50'
           }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {favoriteCount > 0 && (
           <button
             onClick={onShowFavorites}
-            className="w-full px-3 py-2 rounded-lg text-left text-sm text-dark-text hover:bg-dark-border/50 flex items-center gap-2 mb-1 transition-colors"
+            className="w-full px-3 py-2 rounded-lg text-left text-sm text-app-text hover:bg-app-border/50 flex items-center gap-2 mb-1 transition-colors"
           >
             <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
               <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -91,7 +93,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* 周报生成入口 */}
         <button
           onClick={onOpenWeeklyReport}
-          className="w-full px-3 py-2 rounded-lg text-left text-sm text-dark-text hover:bg-dark-border/50 flex items-center gap-2 mb-1 transition-colors"
+          className="w-full px-3 py-2 rounded-lg text-left text-sm text-app-text hover:bg-app-border/50 flex items-center gap-2 mb-1 transition-colors"
         >
           <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -103,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {onOpenGraph && (
           <button
             onClick={onOpenGraph}
-            className="w-full px-3 py-2 rounded-lg text-left text-sm text-dark-text hover:bg-dark-border/50 flex items-center gap-2 mb-1 transition-colors"
+            className="w-full px-3 py-2 rounded-lg text-left text-sm text-app-text hover:bg-app-border/50 flex items-center gap-2 mb-1 transition-colors"
           >
             <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -115,26 +117,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* 梦境循环入口 */}
         <button
           onClick={onOpenDreamCycle}
-          className="w-full px-3 py-2 rounded-lg text-left text-sm text-dark-text hover:bg-dark-border/50 flex items-center gap-2 mb-3 transition-colors"
+          className="w-full px-3 py-2 rounded-lg text-left text-sm text-app-text hover:bg-app-border/50 flex items-center gap-2 mb-3 transition-colors"
         >
           <span className="text-lg">🌙</span>
           <div className="flex-1">
             <span>梦境循环</span>
             {lastDreamRun && (
-              <div className="text-[10px] text-dark-muted">
+              <div className="text-[10px] text-app-muted">
                 上次: {formatLastRun(lastDreamRun)}
               </div>
             )}
           </div>
         </button>
 
+        {/* 离职交接入口 */}
+        <button
+          onClick={onOpenHandover}
+          className="w-full px-3 py-2 rounded-lg text-left text-sm text-app-text hover:bg-app-border/50 flex items-center gap-2 mb-3 transition-colors"
+        >
+          <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <span>离职交接</span>
+        </button>
+
         {/* 分割线 */}
-        <div className="border-t border-dark-border my-2" />
+        <div className="border-t border-app-border my-2" />
 
         {/* 标签分类 */}
         {Object.entries(TAG_CATEGORIES).map(([category, tags]) => (
           <div key={category} className="mb-3">
-            <div className="px-3 py-1 text-xs text-dark-muted uppercase tracking-wider">
+            <div className="px-3 py-1 text-xs text-app-muted uppercase tracking-wider">
               {getCategoryName(category)}
             </div>
             {tags.filter(tag => allTags.includes(tag)).map(tag => {
@@ -146,7 +159,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={`w-full px-3 py-1.5 rounded-lg text-left text-sm flex items-center gap-2 transition-colors ${
                     activeTag === tag
                       ? 'bg-primary-500/20 text-primary-400'
-                      : 'text-dark-muted hover:text-dark-text hover:bg-dark-border/50'
+                      : 'text-app-muted hover:text-app-text hover:bg-app-border/50'
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${colors.bg}`} />
@@ -159,8 +172,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* 底部信息 */}
-      <div className="p-4 border-t border-dark-border">
-        <div className="text-xs text-dark-muted text-center">
+      <div className="p-4 border-t border-app-border">
+        <div className="text-xs text-app-muted text-center">
           <p>数据存储在本地</p>
           <p className="mt-1 opacity-50">认知源码只属于你 ✨</p>
         </div>

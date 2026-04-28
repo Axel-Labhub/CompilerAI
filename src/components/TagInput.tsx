@@ -114,7 +114,7 @@ export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, disabled }) 
               onFocus={() => setShowSuggestions(true)}
               onKeyDown={handleKeyDown}
               placeholder={tags.length === 0 ? '添加标签...' : ''}
-              className="bg-transparent border-none text-sm text-dark-text placeholder-dark-muted focus:outline-none w-24"
+              className="bg-transparent border-none text-sm text-app-text placeholder-app-muted focus:outline-none w-24"
               list="tag-suggestions-list"
             />
             <datalist id="tag-suggestions-list">
@@ -125,14 +125,14 @@ export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, disabled }) 
 
             {/* 建议下拉列表 */}
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 mt-1 w-48 bg-dark-card border border-dark-border rounded-lg shadow-lg py-1 z-50">
+              <div className="absolute top-full left-0 mt-1 w-48 bg-app-card border border-app-border rounded-lg shadow-lg py-1 z-50">
                 {suggestions.map(tag => {
                   const colors = getTagColor(tag)
                   return (
                     <button
                       key={tag}
                       onClick={() => addTag(tag)}
-                      className="w-full px-3 py-1.5 text-sm text-left flex items-center gap-2 hover:bg-dark-border transition-colors"
+                      className="w-full px-3 py-1.5 text-sm text-left flex items-center gap-2 hover:bg-app-border transition-colors"
                     >
                       <span className={`w-2 h-2 rounded-full ${colors.bg}`} />
                       <span className={colors.text}>{tag}</span>
@@ -141,10 +141,10 @@ export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, disabled }) 
                 })}
                 {inputValue.trim() && !ALL_TAGS.includes(inputValue.trim()) && (
                   <>
-                    <div className="border-t border-dark-border my-1" />
+                    <div className="border-t border-app-border my-1" />
                     <button
                       onClick={() => addTag(inputValue)}
-                      className="w-full px-3 py-1.5 text-sm text-left text-primary-400 hover:bg-dark-border flex items-center gap-2"
+                      className="w-full px-3 py-1.5 text-sm text-left text-primary-400 hover:bg-app-border flex items-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

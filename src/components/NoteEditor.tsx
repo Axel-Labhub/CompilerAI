@@ -10,6 +10,7 @@ import remarkGfm from 'remark-gfm'
 import type { Note, SlashCommand, ExportFormat, CompiledSection } from '../types'
 import { aiCleanText, aiSuggestTags } from '../lib/ai'
 import { compileNote } from '../lib/compiler'
+import { showToastGlobal } from '../lib/toast'
 
 // 新增组件导入
 import MarkdownToolbar from './MarkdownToolbar'
@@ -138,6 +139,47 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleSave])
 
+  // 监听全局快捷键事件（来自 App.tsx）
+  useEffect(() => {
+    // 保存事件
+    const handleEditorSave = () => {
+      handleSave()
+      showToastGlobal('笔记已保存', 'success')
+    }
+
+    // AI 清洗事件 - 使用事件派发代替直接调用
+    const handleAICleanEvent = () => {
+      if (!content.trim()) {
+        showToastGlobal('请先输入内容', 'info')
+        return
+      }
+      showToastGlobal('正在清洗内容...', 'info')
+      // 派发事件让 handleAIClean 处理
+      window.dispatchEvent(new CustomEvent('note-editor-ai-clean'))
+    }
+
+    // AI 编译事件
+    const handleAICompileEvent = () => {
+      if (!title.trim() && !content.trim()) {
+        showToastGlobal('请先输入标题或内容', 'info')
+        return
+      }
+      showToastGlobal('正在编译真相...', 'info')
+      // 派发事件让 handleCompile 处理
+      window.dispatchEvent(new CustomEvent('note-editor-ai-compile'))
+    }
+
+    window.addEventListener('editor-save', handleEditorSave)
+    window.addEventListener('ai-clean', handleAICleanEvent)
+    window.addEventListener('ai-compile', handleAICompileEvent)
+
+    return () => {
+      window.removeEventListener('editor-save', handleEditorSave)
+      window.removeEventListener('ai-clean', handleAICleanEvent)
+      window.removeEventListener('ai-compile', handleAICompileEvent)
+    }
+  }, [handleSave, content, title])
+
   // Tab 插入
   const handleTab = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Tab') {
@@ -255,8 +297,10 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
     try {
       const cleaned = await aiCleanText(content)
       setAiResult(cleaned)
+      showToastGlobal('AI 清洗完成，可预览结果', 'success')
     } catch (err) {
       console.error('AI 清洗失败:', err)
+      showToastGlobal('AI 清洗失败，请重试', 'error')
     } finally {
       setAiProcessing(false)
     }
@@ -304,12 +348,28 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
     try {
       const result = await compileNote(title || '无标题笔记', content)
       setCompiledSection(result)
+      showToastGlobal('编译完成，已生成结论区', 'success')
     } catch (err) {
       console.error('编译失败:', err)
+      showToastGlobal('编译失败，请重试', 'error')
     } finally {
       setIsCompiling(false)
     }
   }
+
+  // 监听内部 AI 事件（由快捷键事件触发）
+  useEffect(() => {
+    const handleInternalAIClean = () => handleAIClean()
+    const handleInternalAICompile = () => handleCompile()
+
+    window.addEventListener('note-editor-ai-clean', handleInternalAIClean)
+    window.addEventListener('note-editor-ai-compile', handleInternalAICompile)
+
+    return () => {
+      window.removeEventListener('note-editor-ai-clean', handleInternalAIClean)
+      window.removeEventListener('note-editor-ai-compile', handleInternalAICompile)
+    }
+  }, [handleAIClean, handleCompile])
 
   // 更新编译结论
   const handleUpdateSummary = (summary: string) => {
@@ -343,14 +403,14 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
   }
 
   return (
-    <div className={`flex flex-col h-full bg-dark-bg ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
+    <div className={`flex flex-col h-full bg-app-bg ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
       {/* 工具栏 */}
-      <div className="h-12 bg-dark-card border-b border-dark-border flex items-center justify-between px-4">
+      <div className="h-12 bg-app-card border-b border-app-border flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           {/* 返回按钮 */}
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -363,7 +423,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="笔记标题..."
-            className="bg-transparent border-none text-lg font-medium text-dark-text placeholder-dark-muted focus:outline-none w-64"
+            className="bg-transparent border-none text-lg font-medium text-app-text placeholder-app-muted focus:outline-none w-64"
           />
 
           {/* 保存状态 */}
@@ -378,7 +438,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
               className={`p-2 rounded-lg transition-colors ${
                 note.isFavorite
                   ? 'text-yellow-400 hover:text-yellow-300'
-                  : 'text-dark-muted hover:text-dark-text hover:bg-dark-border'
+                  : 'text-app-muted hover:text-app-text hover:bg-app-border'
               }`}
               title={note.isFavorite ? '取消收藏' : '收藏'}
             >
@@ -392,7 +452,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
           {note && note.id && (
             <button
               onClick={() => setShowVersionHistory(true)}
-              className="p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+              className="p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
               title="版本历史"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,7 +472,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5 transition-colors ${
               showAiPanel 
                 ? 'bg-primary-500/20 text-primary-400' 
-                : 'hover:bg-dark-border text-dark-muted hover:text-dark-text'
+                : 'hover:bg-app-border text-app-muted hover:text-app-text'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -424,7 +484,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
           {/* 预览 */}
           <button
             onClick={onPreview}
-            className="px-3 py-1.5 rounded-lg text-sm hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="px-3 py-1.5 rounded-lg text-sm hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
           >
             预览
           </button>
@@ -432,7 +492,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
           {/* 全屏切换 */}
           <button
             onClick={onToggleFullscreen}
-            className="p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
           >
             {isFullscreen ? (
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -449,7 +509,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
           <button
             onClick={handleSave}
             disabled={!title.trim() || saving}
-            className="px-4 py-1.5 bg-primary-600 hover:bg-primary-700 disabled:bg-dark-border disabled:text-dark-muted text-white rounded-lg text-sm font-medium transition-colors"
+            className="px-4 py-1.5 bg-primary-600 hover:bg-primary-700 disabled:bg-app-border disabled:text-app-muted text-white rounded-lg text-sm font-medium transition-colors"
           >
             保存
           </button>
@@ -461,7 +521,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
 
       {/* AI 面板 */}
       {showAiPanel && (
-        <div className="border-b border-dark-border bg-dark-card/50 p-4">
+        <div className="border-b border-app-border bg-app-card/50 p-4">
           
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
@@ -485,7 +545,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
 
             {aiResult && !aiProcessing && (
               <div className="flex-1 flex items-center gap-2">
-                <div className="flex-1 px-3 py-1.5 bg-dark-bg rounded-lg text-sm text-dark-muted truncate">
+                <div className="flex-1 px-3 py-1.5 bg-app-bg rounded-lg text-sm text-app-muted truncate">
                   {aiResult.length > 100 ? aiResult.substring(0, 100) + '...' : aiResult}
                 </div>
                 <button
@@ -496,7 +556,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
                 </button>
                 <button
                   onClick={() => setAiResult(null)}
-                  className="p-1.5 hover:bg-dark-border rounded text-dark-muted"
+                  className="p-1.5 hover:bg-app-border rounded text-app-muted"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -509,7 +569,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
       )}
 
       {/* 标签栏 */}
-      <div className="px-4 py-2 border-b border-dark-border bg-dark-card/30">
+      <div className="px-4 py-2 border-b border-app-border bg-app-card/30">
         <TagInput tags={tags} onChange={setTags} disabled={saving} />
       </div>
 
@@ -542,20 +602,20 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
 `代码`
 
 输入 / 触发快捷命令"
-            className="w-full h-full bg-transparent border-none resize-none text-dark-text placeholder-dark-muted focus:outline-none font-mono text-sm leading-relaxed"
+            className="w-full h-full bg-transparent border-none resize-none text-app-text placeholder-app-muted focus:outline-none font-mono text-sm leading-relaxed"
           />
         </div>
 
         {/* 预览面板 */}
-        <div className="w-px bg-dark-border" />
-        <div className="flex-1 p-4 overflow-y-auto bg-dark-card/30">
+        <div className="w-px bg-app-border" />
+        <div className="flex-1 p-4 overflow-y-auto bg-app-card/30">
           <div className="markdown-preview">
             {content ? (
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {content}
               </ReactMarkdown>
             ) : (
-              <p className="text-dark-muted italic">预览区域</p>
+              <p className="text-app-muted italic">预览区域</p>
             )}
           </div>
           
@@ -575,7 +635,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
       </div>
 
       {/* 底部状态栏 */}
-      <div className="h-8 bg-dark-card border-t border-dark-border flex items-center justify-between px-4 text-xs text-dark-muted">
+      <div className="h-8 bg-app-card border-t border-app-border flex items-center justify-between px-4 text-xs text-app-muted">
         <div className="flex items-center gap-4">
           <span>Markdown 编辑器</span>
           <span>|</span>
@@ -584,12 +644,12 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
           <span>字符: {content.length}</span>
         </div>
         <div className="flex items-center gap-2">
-          <kbd className="px-1.5 py-0.5 bg-dark-bg rounded text-xs">Ctrl</kbd>
+          <kbd className="px-1.5 py-0.5 bg-app-bg rounded text-xs">Ctrl</kbd>
           <span>+</span>
-          <kbd className="px-1.5 py-0.5 bg-dark-bg rounded text-xs">S</kbd>
+          <kbd className="px-1.5 py-0.5 bg-app-bg rounded text-xs">S</kbd>
           <span>保存</span>
           <span className="mx-2">·</span>
-          <kbd className="px-1.5 py-0.5 bg-dark-bg rounded text-xs">/</kbd>
+          <kbd className="px-1.5 py-0.5 bg-app-bg rounded text-xs">/</kbd>
           <span>命令</span>
         </div>
       </div>

@@ -396,22 +396,22 @@ export const GraphView: React.FC<GraphViewProps> = ({
         }
       }}
     >
-      <div className="bg-dark-card rounded-xl shadow-2xl w-[700px] h-[650px] flex flex-col overflow-hidden border border-dark-border">
+      <div className="bg-app-card rounded-xl shadow-2xl w-[700px] h-[650px] flex flex-col overflow-hidden border border-app-border">
         {/* 头部 */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-dark-border">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-app-border">
           <div className="flex items-center gap-3">
             <svg className="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
-            <h2 className="text-lg font-semibold text-dark-text">关系图谱</h2>
-            <span className="text-sm text-dark-muted">
+            <h2 className="text-lg font-semibold text-app-text">关系图谱</h2>
+            <span className="text-sm text-app-muted">
               {nodes.length} 个笔记 · {edges.length} 条链接
             </span>
           </div>
           
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-dark-border/50 rounded-lg transition-colors text-dark-muted hover:text-dark-text"
+            className="p-1.5 hover:bg-app-border/50 rounded-lg transition-colors text-app-muted hover:text-app-text"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -495,7 +495,7 @@ export const GraphView: React.FC<GraphViewProps> = ({
                       <text
                         y={getNodeRadius(node) + 14}
                         textAnchor="middle"
-                        className="text-[10px] fill-dark-text pointer-events-none"
+                        className="text-[10px] fill-app-text pointer-events-none"
                         style={{ 
                           fontSize: '10px',
                           fill: node.isHighlighted ? '#8b5cf6' : '#94a3b8'
@@ -512,8 +512,8 @@ export const GraphView: React.FC<GraphViewProps> = ({
         </div>
         
         {/* 底部控制栏 */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-dark-border bg-dark-bg/50">
-          <div className="flex items-center gap-4 text-xs text-dark-muted">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-app-border bg-app-bg/50">
+          <div className="flex items-center gap-4 text-xs text-app-muted">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
               <span>当前笔记</span>
@@ -531,19 +531,19 @@ export const GraphView: React.FC<GraphViewProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setScale(prev => Math.min(3, prev * 1.2))}
-              className="p-1.5 hover:bg-dark-border/50 rounded-lg transition-colors text-dark-muted hover:text-dark-text"
+              className="p-1.5 hover:bg-app-border/50 rounded-lg transition-colors text-app-muted hover:text-app-text"
               title="放大"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </button>
-            <span className="text-xs text-dark-muted w-12 text-center">
+            <span className="text-xs text-app-muted w-12 text-center">
               {Math.round(scale * 100)}%
             </span>
             <button
               onClick={() => setScale(prev => Math.max(0.3, prev * 0.8))}
-              className="p-1.5 hover:bg-dark-border/50 rounded-lg transition-colors text-dark-muted hover:text-dark-text"
+              className="p-1.5 hover:bg-app-border/50 rounded-lg transition-colors text-app-muted hover:text-app-text"
               title="缩小"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -555,7 +555,7 @@ export const GraphView: React.FC<GraphViewProps> = ({
                 setScale(1)
                 setTranslate({ x: 0, y: 0 })
               }}
-              className="p-1.5 hover:bg-dark-border/50 rounded-lg transition-colors text-dark-muted hover:text-dark-text ml-2"
+              className="p-1.5 hover:bg-app-border/50 rounded-lg transition-colors text-app-muted hover:text-app-text ml-2"
               title="重置视图"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

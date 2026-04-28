@@ -114,7 +114,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-dark-card border border-dark-border rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+      <div className="bg-app-card border border-app-border rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
         {/* 头部 */}
         <div className="relative p-6 pb-4">
           {step === 'success' ? (
@@ -124,8 +124,8 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-dark-text mb-2">激活成功！</h2>
-              <p className="text-dark-muted">
+              <h2 className="text-xl font-semibold text-app-text mb-2">激活成功！</h2>
+              <p className="text-app-muted">
                 欢迎成为{selectedType ? getLicenseTypeName(selectedType) : '会员'}
               </p>
             </div>
@@ -133,7 +133,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
             <>
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+                className="absolute top-4 right-4 p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -146,8 +146,8 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                   </svg>
                 </div>
-                <h2 className="text-xl font-semibold text-dark-text mb-1">激活专业版</h2>
-                <p className="text-sm text-dark-muted">解锁所有 AI 功能，开启高效工作</p>
+                <h2 className="text-xl font-semibold text-app-text mb-1">激活专业版</h2>
+                <p className="text-sm text-app-muted">解锁所有 AI 功能，开启高效工作</p>
               </div>
             </>
           )}
@@ -166,11 +166,11 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
                     className={`p-3 rounded-xl border transition-all ${
                       type === 'yearly'
                         ? 'border-primary-500 bg-primary-500/10'
-                        : 'border-dark-border hover:border-dark-muted'
+                        : 'border-app-border hover:border-app-muted'
                     }`}
                   >
-                    <div className="text-xs text-dark-muted mb-1">{info.period}</div>
-                    <div className="text-lg font-bold text-dark-text">
+                    <div className="text-xs text-app-muted mb-1">{info.period}</div>
+                    <div className="text-lg font-bold text-app-text">
                       ¥{'discounted' in info ? info.discounted : info.price}
                     </div>
                     {'discountNote' in info && info.discountNote && (
@@ -184,7 +184,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
 
               {/* 激活码输入 */}
               <div className="mb-4">
-                <label className="block text-sm text-dark-muted mb-2">
+                <label className="block text-sm text-app-muted mb-2">
                   输入激活码
                 </label>
                 <input
@@ -194,10 +194,10 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
                   onPaste={handlePaste}
                   placeholder="XXXX-XXXX-XXXX-XXXX"
                   maxLength={19}
-                  className={`w-full px-4 py-3 bg-dark-bg border rounded-xl text-center text-lg font-mono tracking-wider text-dark-text placeholder-dark-muted focus:outline-none transition-colors ${
+                  className={`w-full px-4 py-3 bg-app-bg border rounded-xl text-center text-lg font-mono tracking-wider text-app-text placeholder-app-muted focus:outline-none transition-colors ${
                     errorMessage
                       ? 'border-red-500 focus:border-red-500'
-                      : 'border-dark-border focus:border-primary-500'
+                      : 'border-app-border focus:border-primary-500'
                   }`}
                 />
                 {errorMessage && (
@@ -214,7 +214,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
               <button
                 onClick={handleActivate}
                 disabled={isActivating || !code.trim()}
-                className="w-full py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-dark-border disabled:text-dark-muted text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-app-border disabled:text-app-muted text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {isActivating ? (
                   <>
@@ -235,7 +235,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
               </button>
 
               {/* 提示 */}
-              <p className="mt-4 text-xs text-center text-dark-muted">
+              <p className="mt-4 text-xs text-center text-app-muted">
                 激活码可在购买后获取，如有问题请联系客服
               </p>
             </>
@@ -250,7 +250,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-dark-text mb-2">激活失败</h3>
+                <h3 className="text-lg font-medium text-app-text mb-2">激活失败</h3>
                 <p className="text-red-400 text-sm">{errorMessage}</p>
               </div>
 
@@ -266,7 +266,7 @@ export const ActivationModal: React.FC<ActivationModalProps> = ({
 
           {step === 'success' && (
             <div className="text-center">
-              <p className="text-dark-muted text-sm mb-4">
+              <p className="text-app-muted text-sm mb-4">
                 所有 AI 功能已解锁，立即体验吧！
               </p>
               <button

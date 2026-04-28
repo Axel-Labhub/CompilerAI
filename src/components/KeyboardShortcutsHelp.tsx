@@ -26,16 +26,16 @@ export const KeyboardShortcutsHelp: React.FC<KeyboardShortcutsHelpProps> = ({ is
       />
 
       {/* 面板内容 */}
-      <div className="relative bg-dark-card border border-dark-border rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="relative bg-app-card border border-app-border rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         {/* 头部 */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-dark-border">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-app-border">
           <div className="flex items-center gap-2">
             <span className="text-lg">⌨️</span>
-            <h2 className="text-lg font-semibold text-dark-text">快捷键</h2>
+            <h2 className="text-lg font-semibold text-app-text">快捷键</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="p-1 rounded hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -47,28 +47,28 @@ export const KeyboardShortcutsHelp: React.FC<KeyboardShortcutsHelpProps> = ({ is
         <div className="p-5 space-y-3 max-h-80 overflow-y-auto">
           {KEYBOARD_SHORTCUTS.map((shortcut, index) => (
             <div key={index} className="flex items-center justify-between">
-              <span className="text-sm text-dark-muted">{shortcut.description}</span>
+              <span className="text-sm text-app-muted">{shortcut.description}</span>
               <div className="flex items-center gap-1">
                 {isMac && shortcut.mac ? (
                   shortcut.mac.split(' + ').map((key, i) => (
                     <React.Fragment key={i}>
-                      <kbd className="px-2 py-1 bg-dark-bg border border-dark-border rounded text-xs text-dark-text">
+                      <kbd className="px-2 py-1 bg-app-bg border border-app-border rounded text-xs text-app-text">
                         {key}
                       </kbd>
-                      {i < shortcut.mac!.split(' + ').length - 1 && <span className="text-dark-muted">+</span>}
+                      {i < shortcut.mac!.split(' + ').length - 1 && <span className="text-app-muted">+</span>}
                     </React.Fragment>
                   ))
                 ) : shortcut.windows ? (
                   shortcut.windows.split(' + ').map((key, i) => (
                     <React.Fragment key={i}>
-                      <kbd className="px-2 py-1 bg-dark-bg border border-dark-border rounded text-xs text-dark-text">
+                      <kbd className="px-2 py-1 bg-app-bg border border-app-border rounded text-xs text-app-text">
                         {key}
                       </kbd>
-                      {i < shortcut.windows!.split(' + ').length - 1 && <span className="text-dark-muted">+</span>}
+                      {i < shortcut.windows!.split(' + ').length - 1 && <span className="text-app-muted">+</span>}
                     </React.Fragment>
                   ))
                 ) : (
-                  <kbd className="px-2 py-1 bg-dark-bg border border-dark-border rounded text-xs text-dark-text">
+                  <kbd className="px-2 py-1 bg-app-bg border border-app-border rounded text-xs text-app-text">
                     {shortcut.key}
                   </kbd>
                 )}
@@ -78,9 +78,9 @@ export const KeyboardShortcutsHelp: React.FC<KeyboardShortcutsHelpProps> = ({ is
         </div>
 
         {/* 底部提示 */}
-        <div className="px-5 py-3 bg-dark-bg/50 border-t border-dark-border">
-          <p className="text-xs text-dark-muted text-center">
-            按 <kbd className="px-1.5 py-0.5 bg-dark-card border border-dark-border rounded text-xs">Esc</kbd> 或点击外部关闭
+        <div className="px-5 py-3 bg-app-bg/50 border-t border-app-border">
+          <p className="text-xs text-app-muted text-center">
+            按 <kbd className="px-1.5 py-0.5 bg-app-card border border-app-border rounded text-xs">Esc</kbd> 或点击外部关闭
           </p>
         </div>
       </div>

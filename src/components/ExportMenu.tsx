@@ -36,7 +36,7 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({ note, onExport }) => {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+        className="p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
         title="导出"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,10 +45,10 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({ note, onExport }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-56 bg-dark-card border border-dark-border rounded-lg shadow-xl z-50 overflow-hidden">
-          <div className="px-3 py-2 border-b border-dark-border">
-            <p className="text-xs text-dark-muted">导出笔记</p>
-            <p className="text-sm text-dark-text truncate">{note.title || '无标题笔记'}</p>
+        <div className="absolute right-0 top-full mt-2 w-56 bg-app-card border border-app-border rounded-lg shadow-xl z-50 overflow-hidden">
+          <div className="px-3 py-2 border-b border-app-border">
+            <p className="text-xs text-app-muted">导出笔记</p>
+            <p className="text-sm text-app-text truncate">{note.title || '无标题笔记'}</p>
           </div>
           <div className="py-1">
             {exportOptions.map((option) => (
@@ -58,12 +58,12 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({ note, onExport }) => {
                   onExport(option.format)
                   setIsOpen(false)
                 }}
-                className="w-full px-3 py-2 flex items-start gap-3 hover:bg-dark-border/50 transition-colors text-left"
+                className="w-full px-3 py-2 flex items-start gap-3 hover:bg-app-border/50 transition-colors text-left"
               >
                 <span className="text-lg">{option.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm text-dark-text">{option.label}</div>
-                  <div className="text-xs text-dark-muted">{option.description}</div>
+                  <div className="text-sm text-app-text">{option.label}</div>
+                  <div className="text-xs text-app-muted">{option.description}</div>
                 </div>
               </button>
             ))}

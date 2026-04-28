@@ -48,7 +48,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({ onInsert, disa
   }
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1 bg-dark-card/50 border-b border-dark-border">
+    <div className="flex items-center gap-1 px-2 py-1 bg-app-card/50 border-b border-app-border">
       {TOOLBAR_BUTTONS.map((button) => (
         <div key={button.id} className="relative">
           <button
@@ -56,7 +56,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({ onInsert, disa
             disabled={disabled}
             onMouseEnter={() => setActiveTooltip(button.id)}
             onMouseLeave={() => setActiveTooltip(null)}
-            className="w-8 h-8 flex items-center justify-center rounded text-sm font-medium text-dark-muted hover:text-dark-text hover:bg-dark-border/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-8 h-8 flex items-center justify-center rounded text-sm font-medium text-app-muted hover:text-app-text hover:bg-app-border/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title={button.label}
           >
             <span className={button.id === 'bold' ? 'font-bold' : button.id === 'italic' ? 'italic' : ''}>
@@ -66,7 +66,7 @@ export const MarkdownToolbar: React.FC<MarkdownToolbarProps> = ({ onInsert, disa
           
           {/* Tooltip */}
           {activeTooltip === button.id && (
-            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 px-2 py-1 bg-dark-bg border border-dark-border rounded text-xs text-dark-text whitespace-nowrap z-50 shadow-lg">
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 px-2 py-1 bg-app-bg border border-app-border rounded text-xs text-app-text whitespace-nowrap z-50 shadow-lg">
               {button.label}
             </div>
           )}

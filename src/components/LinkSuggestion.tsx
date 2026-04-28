@@ -96,7 +96,7 @@ export const LinkSuggestion: React.FC<LinkSuggestionProps> = ({
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-dark-card border border-dark-border rounded-lg shadow-xl overflow-hidden"
+      className="fixed z-50 bg-app-card border border-app-border rounded-lg shadow-xl overflow-hidden"
       style={{
         top: position.top,
         left: position.left,
@@ -105,7 +105,7 @@ export const LinkSuggestion: React.FC<LinkSuggestionProps> = ({
       }}
     >
       {/* 标题 */}
-      <div className="px-3 py-2 border-b border-dark-border bg-dark-bg/50 text-xs text-dark-muted">
+      <div className="px-3 py-2 border-b border-app-border bg-app-bg/50 text-xs text-app-muted">
         链接到笔记
       </div>
 
@@ -115,14 +115,14 @@ export const LinkSuggestion: React.FC<LinkSuggestionProps> = ({
           <button
             key={note.id}
             onClick={() => onSelect(note.title)}
-            className={`w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-dark-bg transition-colors ${
-              index === selectedIndex ? 'bg-dark-bg' : ''
+            className={`w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-app-bg transition-colors ${
+              index === selectedIndex ? 'bg-app-bg' : ''
             }`}
           >
             <svg className="w-4 h-4 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
-            <span className="text-sm text-dark-text truncate flex-1">
+            <span className="text-sm text-app-text truncate flex-1">
               {highlightMatch(note.title || '无标题笔记', query)}
             </span>
             {note.isFavorite && (
@@ -137,8 +137,8 @@ export const LinkSuggestion: React.FC<LinkSuggestionProps> = ({
         {showCreateOption && (
           <button
             onClick={() => onCreateNew?.(query)}
-            className={`w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-dark-bg transition-colors ${
-              selectedIndex === filteredNotes.length ? 'bg-dark-bg' : ''
+            className={`w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-app-bg transition-colors ${
+              selectedIndex === filteredNotes.length ? 'bg-app-bg' : ''
             }`}
           >
             <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,11 +152,11 @@ export const LinkSuggestion: React.FC<LinkSuggestionProps> = ({
       </div>
 
       {/* 底部提示 */}
-      <div className="px-3 py-2 border-t border-dark-border bg-dark-bg/50 text-xs text-dark-muted flex items-center gap-2">
-        <kbd className="px-1 py-0.5 bg-dark-card rounded">Tab</kbd>
+      <div className="px-3 py-2 border-t border-app-border bg-app-bg/50 text-xs text-app-muted flex items-center gap-2">
+        <kbd className="px-1 py-0.5 bg-app-card rounded">Tab</kbd>
         <span>插入</span>
         <span className="mx-2">·</span>
-        <kbd className="px-1 py-0.5 bg-dark-card rounded">Enter</kbd>
+        <kbd className="px-1 py-0.5 bg-app-card rounded">Enter</kbd>
         <span>选择</span>
       </div>
     </div>

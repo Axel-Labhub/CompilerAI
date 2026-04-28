@@ -150,13 +150,13 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
       />
 
       {/* 面板内容 */}
-      <div className="relative bg-dark-card border border-dark-border rounded-xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="relative bg-app-card border border-app-border rounded-xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
         {/* 头部 */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-dark-border flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-app-border flex-shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-lg">📜</span>
-            <h2 className="text-lg font-semibold text-dark-text">版本历史</h2>
-            <span className="px-2 py-0.5 bg-dark-bg rounded text-xs text-dark-muted">
+            <h2 className="text-lg font-semibold text-app-text">版本历史</h2>
+            <span className="px-2 py-0.5 bg-app-bg rounded text-xs text-app-muted">
               {versions.length} 个版本
             </span>
           </div>
@@ -170,14 +170,14 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
               className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
                 compareMode
                   ? 'bg-primary-500/20 text-primary-400'
-                  : 'hover:bg-dark-border text-dark-muted hover:text-dark-text'
+                  : 'hover:bg-app-border text-app-muted hover:text-app-text'
               }`}
             >
               {compareMode ? '退出比较' : '版本比较'}
             </button>
             <button
               onClick={onClose}
-              className="p-1 rounded hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+              className="p-1 rounded hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -187,8 +187,8 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
         </div>
 
         {/* 笔记标题 */}
-        <div className="px-5 py-3 bg-dark-bg/50 border-b border-dark-border flex-shrink-0">
-          <p className="text-sm text-dark-muted truncate">{noteTitle || '无标题笔记'}</p>
+        <div className="px-5 py-3 bg-app-bg/50 border-b border-app-border flex-shrink-0">
+          <p className="text-sm text-app-muted truncate">{noteTitle || '无标题笔记'}</p>
         </div>
 
         {/* 比较模式提示 */}
@@ -204,7 +204,7 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="flex items-center gap-2 text-dark-muted">
+              <div className="flex items-center gap-2 text-app-muted">
                 <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -213,7 +213,7 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
               </div>
             </div>
           ) : versions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-dark-muted">
+            <div className="flex flex-col items-center justify-center py-12 text-app-muted">
               <svg className="w-12 h-12 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -221,7 +221,7 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
               <p className="text-xs mt-1">保存笔记后会自动记录版本</p>
             </div>
           ) : (
-            <div className="divide-y divide-dark-border">
+            <div className="divide-y divide-app-border">
               {versions.map((version, index) => {
                 const prevVersion = versions[index + 1]
                 const diff = prevVersion ? getDiff(prevVersion.content, version.content) : null
@@ -230,7 +230,7 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
                 return (
                   <div
                     key={version.id}
-                    className={`p-4 hover:bg-dark-bg/50 transition-colors group ${
+                    className={`p-4 hover:bg-app-bg/50 transition-colors group ${
                       isSelected ? 'bg-primary-500/10 border-l-2 border-l-primary-500' : ''
                     }`}
                   >
@@ -243,7 +243,7 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
                             className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                               isSelected
                                 ? 'bg-primary-500 border-primary-500'
-                                : 'border-dark-border group-hover:border-dark-muted'
+                                : 'border-app-border group-hover:border-app-muted'
                             }`}
                           >
                             {isSelected && (
@@ -256,7 +256,7 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-medium text-dark-text">
+                            <span className="text-sm font-medium text-app-text">
                               {formatTime(version.createdAt)}
                             </span>
                             {index === 0 && (
@@ -265,7 +265,7 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
                               </span>
                             )}
                             {diff && (
-                              <span className="text-xs text-dark-muted flex items-center gap-1">
+                              <span className="text-xs text-app-muted flex items-center gap-1">
                                 {diff.added > 0 && (
                                   <span className="text-green-400">+{diff.added}</span>
                                 )}
@@ -275,10 +275,10 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-dark-muted line-clamp-2 mb-2">
+                          <p className="text-xs text-app-muted line-clamp-2 mb-2">
                             {version.title ? `${version.title} - ` : ''}{getPreview(version.content)}
                           </p>
-                          <p className="text-xs text-dark-muted/60">
+                          <p className="text-xs text-app-muted/60">
                             {formatFullTime(version.createdAt)}
                           </p>
                         </div>
@@ -288,7 +288,7 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
                         {/* 预览按钮 */}
                         <button
                           onClick={() => setPreviewVersion(version)}
-                          className="px-3 py-1.5 text-xs bg-dark-bg rounded hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors opacity-0 group-hover:opacity-100"
+                          className="px-3 py-1.5 text-xs bg-app-bg rounded hover:bg-app-border text-app-muted hover:text-app-text transition-colors opacity-0 group-hover:opacity-100"
                         >
                           预览
                         </button>
@@ -309,8 +309,8 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
         </div>
 
         {/* 底部提示 */}
-        <div className="px-5 py-3 bg-dark-bg/50 border-t border-dark-border flex-shrink-0">
-          <p className="text-xs text-dark-muted text-center">
+        <div className="px-5 py-3 bg-app-bg/50 border-t border-app-border flex-shrink-0">
+          <p className="text-xs text-app-muted text-center">
             最多保留 20 个版本 · 自动清理旧版本
           </p>
         </div>
@@ -342,12 +342,12 @@ const VersionPreview: React.FC<VersionPreviewProps> = ({ version, onClose, onRes
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative bg-dark-card border border-dark-border rounded-xl shadow-2xl w-full max-w-3xl mx-4 max-h-[80vh] flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-dark-border">
+      <div className="relative bg-app-card border border-app-border rounded-xl shadow-2xl w-full max-w-3xl mx-4 max-h-[80vh] flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-app-border">
           <div className="flex items-center gap-2">
             <span className="text-lg">👁️</span>
-            <h3 className="font-semibold text-dark-text">版本预览</h3>
-            <span className="text-xs text-dark-muted">
+            <h3 className="font-semibold text-app-text">版本预览</h3>
+            <span className="text-xs text-app-muted">
               {new Date(version.createdAt).toLocaleString('zh-CN')}
             </span>
           </div>
@@ -360,7 +360,7 @@ const VersionPreview: React.FC<VersionPreviewProps> = ({ version, onClose, onRes
             </button>
             <button
               onClick={onClose}
-              className="p-1 rounded hover:bg-dark-border text-dark-muted"
+              className="p-1 rounded hover:bg-app-border text-app-muted"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -369,7 +369,7 @@ const VersionPreview: React.FC<VersionPreviewProps> = ({ version, onClose, onRes
           </div>
         </div>
         <div className="flex-1 overflow-y-auto p-5">
-          <h1 className="text-xl font-bold text-dark-text mb-4">
+          <h1 className="text-xl font-bold text-app-text mb-4">
             {version.title || '无标题笔记'}
           </h1>
           <div className="flex items-center gap-2 mb-4">
@@ -377,7 +377,7 @@ const VersionPreview: React.FC<VersionPreviewProps> = ({ version, onClose, onRes
               <span key={tag} className="tag">{tag}</span>
             ))}
           </div>
-          <pre className="whitespace-pre-wrap text-dark-text text-sm font-mono leading-relaxed bg-dark-bg p-4 rounded-lg overflow-x-auto">
+          <pre className="whitespace-pre-wrap text-app-text text-sm font-mono leading-relaxed bg-app-bg p-4 rounded-lg overflow-x-auto">
             {version.content}
           </pre>
         </div>

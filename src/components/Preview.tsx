@@ -27,25 +27,25 @@ export const Preview: React.FC<PreviewProps> = ({
   onToggleFullscreen,
 }) => {
   return (
-    <div className={`flex flex-col h-full bg-dark-bg ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
+    <div className={`flex flex-col h-full bg-app-bg ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
       {/* 工具栏 */}
-      <div className="h-12 bg-dark-card border-b border-dark-border flex items-center justify-between px-4">
+      <div className="h-12 bg-app-card border-b border-app-border flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <button
             onClick={onBack}
-            className="p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
           </button>
-          <h2 className="font-medium text-dark-text">{title || '无标题笔记'}</h2>
+          <h2 className="font-medium text-app-text">{title || '无标题笔记'}</h2>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={onEdit}
-            className="px-3 py-1.5 rounded-lg text-sm hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg text-sm hover:bg-app-border text-app-muted hover:text-app-text transition-colors flex items-center gap-1.5"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -55,7 +55,7 @@ export const Preview: React.FC<PreviewProps> = ({
 
           <button
             onClick={onToggleFullscreen}
-            className="p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
           >
             {isFullscreen ? (
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@ export const Preview: React.FC<PreviewProps> = ({
 
       {/* 标签 */}
       {tags.length > 0 && (
-        <div className="px-4 py-2 border-b border-dark-border bg-dark-card/30 flex items-center gap-2">
+        <div className="px-4 py-2 border-b border-app-border bg-app-card/30 flex items-center gap-2">
           {tags.map(tag => (
             <span key={tag} className="tag">
               {tag}
@@ -90,7 +90,7 @@ export const Preview: React.FC<PreviewProps> = ({
                 {content}
               </ReactMarkdown>
             ) : (
-              <p className="text-dark-muted italic">暂无内容</p>
+              <p className="text-app-muted italic">暂无内容</p>
             )}
           </article>
         </div>

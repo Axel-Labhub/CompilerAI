@@ -643,64 +643,8 @@ export function useExport() {
 }
 
 // ==================== 快捷键 Hook ====================
-
-/**
- * 全局快捷键 Hook
- */
-export function useKeyboardShortcuts(handlers: {
-  onSave?: () => void
-  onNew?: () => void
-  onSearch?: () => void
-  onPreview?: () => void
-  onFullscreen?: () => void
-  onHelp?: () => void
-}) {
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-      const cmdKey = isMac ? e.metaKey : e.ctrlKey
-
-      // 保存 Ctrl/Cmd + S
-      if (cmdKey && e.key === 's') {
-        e.preventDefault()
-        handlers.onSave?.()
-      }
-      
-      // 新建 Ctrl/Cmd + N
-      if (cmdKey && e.key === 'n') {
-        e.preventDefault()
-        handlers.onNew?.()
-      }
-      
-      // 搜索 Ctrl/Cmd + F
-      if (cmdKey && e.key === 'f') {
-        e.preventDefault()
-        handlers.onSearch?.()
-      }
-      
-      // 预览 Ctrl/Cmd + P
-      if (cmdKey && e.key === 'p') {
-        e.preventDefault()
-        handlers.onPreview?.()
-      }
-      
-      // 全屏 Ctrl/Cmd + .
-      if (cmdKey && e.key === '.') {
-        e.preventDefault()
-        handlers.onFullscreen?.()
-      }
-      
-      // 帮助 ?
-      if (e.key === '?' && !e.target?.toString().includes('input') && !e.target?.toString().includes('textarea')) {
-        e.preventDefault()
-        handlers.onHelp?.()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handlers])
-}
+// 已迁移到独立的 useKeyboardShortcuts.ts 文件
+// 从独立文件导入以支持更丰富的功能
 
 // ==================== 周报选择 Hook ====================
 

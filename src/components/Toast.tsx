@@ -3,7 +3,8 @@
  * 用于显示操作反馈和通知
  */
 
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { setGlobalToastCallback } from '../lib/toast'
 
 interface Toast {
   id: string
@@ -47,6 +48,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const hideToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id))
   }, [])
+
+  // 设置全局 Toast 回调
+  useEffect(() => {
+    setGlobalToastCallback(showToast)
+    return () => setGlobalToastCallback(null)
+  }, [showToast])
 
   return (
     <ToastContext.Provider value={{ toasts, showToast, hideToast }}>

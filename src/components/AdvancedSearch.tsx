@@ -214,10 +214,10 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
       />
 
       {/* 搜索面板 */}
-      <div className="relative w-full max-w-2xl mx-4 bg-dark-card border border-dark-border rounded-xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-2xl mx-4 bg-app-card border border-app-border rounded-xl shadow-2xl overflow-hidden">
         {/* 搜索输入框 */}
-        <div className="flex items-center px-4 py-3 border-b border-dark-border">
-          <svg className="w-5 h-5 text-dark-muted mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-center px-4 py-3 border-b border-app-border">
+          <svg className="w-5 h-5 text-app-muted mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -227,12 +227,12 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="搜索笔记标题、内容或标签..."
-            className="flex-1 bg-transparent border-none text-dark-text placeholder-dark-muted focus:outline-none text-lg"
+            className="flex-1 bg-transparent border-none text-app-text placeholder-app-muted focus:outline-none text-lg"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 rounded hover:bg-dark-border text-dark-muted"
+              className="p-1 rounded hover:bg-app-border text-app-muted"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -243,8 +243,8 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
 
         {/* 搜索建议 */}
         {suggestions.length > 0 && !query && (
-          <div className="px-4 py-2 border-b border-dark-border bg-dark-bg/50">
-            <div className="flex items-center gap-2 text-xs text-dark-muted mb-2">
+          <div className="px-4 py-2 border-b border-app-border bg-app-bg/50">
+            <div className="flex items-center gap-2 text-xs text-app-muted mb-2">
               <span>最近搜索</span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -252,7 +252,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                 <button
                   key={i}
                   onClick={() => setQuery(search)}
-                  className="px-2 py-1 bg-dark-bg rounded text-sm text-dark-text hover:bg-dark-border transition-colors"
+                  className="px-2 py-1 bg-app-bg rounded text-sm text-app-text hover:bg-app-border transition-colors"
                 >
                   {search}
                 </button>
@@ -263,8 +263,8 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
 
         {/* 搜索建议词 */}
         {suggestions.length > 0 && query && (
-          <div className="px-4 py-2 border-b border-dark-border bg-dark-bg/50">
-            <div className="flex items-center gap-2 text-xs text-dark-muted mb-2">
+          <div className="px-4 py-2 border-b border-app-border bg-app-bg/50">
+            <div className="flex items-center gap-2 text-xs text-app-muted mb-2">
               <span>建议</span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -272,7 +272,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                 <button
                   key={i}
                   onClick={() => setQuery(suggestion)}
-                  className="px-2 py-1 bg-dark-bg rounded text-sm text-primary-400 hover:bg-dark-border transition-colors"
+                  className="px-2 py-1 bg-app-bg rounded text-sm text-primary-400 hover:bg-app-border transition-colors"
                 >
                   {suggestion}
                 </button>
@@ -284,7 +284,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
         {/* 搜索结果 */}
         <div className="max-h-96 overflow-y-auto">
           {query && results.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-dark-muted">
+            <div className="flex flex-col items-center justify-center py-12 text-app-muted">
               <svg className="w-12 h-12 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -296,17 +296,17 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
             <button
               key={result.id}
               onClick={() => handleSelect(result)}
-              className={`w-full px-4 py-3 flex items-start gap-3 hover:bg-dark-bg/50 transition-colors ${
-                index === selectedIndex ? 'bg-dark-bg/50' : ''
+              className={`w-full px-4 py-3 flex items-start gap-3 hover:bg-app-bg/50 transition-colors ${
+                index === selectedIndex ? 'bg-app-bg/50' : ''
               }`}
             >
               {getMatchIcon(result.matchType)}
               <div className="flex-1 min-w-0 text-left">
-                <div className="font-medium text-dark-text truncate">
+                <div className="font-medium text-app-text truncate">
                   {highlightMatch(result.title || '无标题笔记', result.matchType)}
                 </div>
                 {result.matchedText && (
-                  <div className="text-sm text-dark-muted mt-1 line-clamp-2">
+                  <div className="text-sm text-app-muted mt-1 line-clamp-2">
                     {highlightMatch(result.matchedText, result.matchType)}
                   </div>
                 )}
@@ -316,7 +316,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   ))}
                 </div>
               </div>
-              <div className="text-xs text-dark-muted whitespace-nowrap">
+              <div className="text-xs text-app-muted whitespace-nowrap">
                 {formatRelativeTime(result.updatedAt)}
               </div>
             </button>
@@ -324,18 +324,18 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
         </div>
 
         {/* 底部提示 */}
-        <div className="px-4 py-2 border-t border-dark-border bg-dark-bg/50 text-xs text-dark-muted flex items-center gap-4">
+        <div className="px-4 py-2 border-t border-app-border bg-app-bg/50 text-xs text-app-muted flex items-center gap-4">
           <span className="flex items-center gap-1">
-            <kbd className="px-1 py-0.5 bg-dark-card rounded">↑</kbd>
-            <kbd className="px-1 py-0.5 bg-dark-card rounded">↓</kbd>
+            <kbd className="px-1 py-0.5 bg-app-card rounded">↑</kbd>
+            <kbd className="px-1 py-0.5 bg-app-card rounded">↓</kbd>
             导航
           </span>
           <span className="flex items-center gap-1">
-            <kbd className="px-1 py-0.5 bg-dark-card rounded">Enter</kbd>
+            <kbd className="px-1 py-0.5 bg-app-card rounded">Enter</kbd>
             选择
           </span>
           <span className="flex items-center gap-1">
-            <kbd className="px-1 py-0.5 bg-dark-card rounded">Esc</kbd>
+            <kbd className="px-1 py-0.5 bg-app-card rounded">Esc</kbd>
             关闭
           </span>
         </div>

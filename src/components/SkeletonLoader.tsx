@@ -8,21 +8,21 @@ import React from 'react'
 // 笔记卡片骨架屏
 export const NoteCardSkeleton: React.FC = () => {
   return (
-    <div className="bg-dark-card border border-dark-border rounded-lg p-4 animate-pulse">
+    <div className="bg-app-card border border-app-border rounded-lg p-4 animate-pulse">
       <div className="flex items-start justify-between mb-3">
-        <div className="h-5 bg-dark-border rounded w-3/4" />
-        <div className="h-4 w-4 bg-dark-border rounded" />
+        <div className="h-5 bg-app-border rounded w-3/4" />
+        <div className="h-4 w-4 bg-app-border rounded" />
       </div>
       <div className="space-y-2 mb-3">
-        <div className="h-3 bg-dark-border rounded w-full" />
-        <div className="h-3 bg-dark-border rounded w-5/6" />
+        <div className="h-3 bg-app-border rounded w-full" />
+        <div className="h-3 bg-app-border rounded w-5/6" />
       </div>
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
-          <div className="h-5 w-12 bg-dark-border rounded" />
-          <div className="h-5 w-12 bg-dark-border rounded" />
+          <div className="h-5 w-12 bg-app-border rounded" />
+          <div className="h-5 w-12 bg-app-border rounded" />
         </div>
-        <div className="h-3 w-16 bg-dark-border rounded" />
+        <div className="h-3 w-16 bg-app-border rounded" />
       </div>
     </div>
   )
@@ -55,7 +55,7 @@ export const LoadingSpinner: React.FC<{ size?: 'sm' | 'md' | 'lg'; text?: string
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
       </svg>
-      {text && <span className="text-sm text-dark-muted">{text}</span>}
+      {text && <span className="text-sm text-app-muted">{text}</span>}
     </div>
   )
 }

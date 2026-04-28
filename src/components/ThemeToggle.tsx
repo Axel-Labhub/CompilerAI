@@ -37,7 +37,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ theme, onSetTheme }) =
     <div className="relative">
       <button
         onClick={() => setShowMenu(!showMenu)}
-        className="p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+        className="p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
         title="切换主题"
       >
         {themeIcon[theme]}
@@ -49,11 +49,11 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ theme, onSetTheme }) =
             className="fixed inset-0 z-40" 
             onClick={() => setShowMenu(false)}
           />
-          <div className="absolute right-0 top-full mt-2 w-36 bg-dark-card border border-dark-border rounded-lg shadow-lg py-1 z-50">
+          <div className="absolute right-0 top-full mt-2 w-36 bg-app-card border border-app-border rounded-lg shadow-lg py-1 z-50">
             <button
               onClick={() => { onSetTheme('light'); setShowMenu(false) }}
-              className={`w-full px-3 py-2 text-sm text-left flex items-center gap-2 hover:bg-dark-border transition-colors ${
-                theme === 'light' ? 'text-primary-400 bg-primary-500/10' : 'text-dark-text'
+              className={`w-full px-3 py-2 text-sm text-left flex items-center gap-2 hover:bg-app-border transition-colors ${
+                theme === 'light' ? 'text-primary-400 bg-primary-500/10' : 'text-app-text'
               }`}
             >
               {themeIcon.light}
@@ -61,8 +61,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ theme, onSetTheme }) =
             </button>
             <button
               onClick={() => { onSetTheme('dark'); setShowMenu(false) }}
-              className={`w-full px-3 py-2 text-sm text-left flex items-center gap-2 hover:bg-dark-border transition-colors ${
-                theme === 'dark' ? 'text-primary-400 bg-primary-500/10' : 'text-dark-text'
+              className={`w-full px-3 py-2 text-sm text-left flex items-center gap-2 hover:bg-app-border transition-colors ${
+                theme === 'dark' ? 'text-primary-400 bg-primary-500/10' : 'text-app-text'
               }`}
             >
               {themeIcon.dark}
@@ -70,8 +70,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ theme, onSetTheme }) =
             </button>
             <button
               onClick={() => { onSetTheme('system'); setShowMenu(false) }}
-              className={`w-full px-3 py-2 text-sm text-left flex items-center gap-2 hover:bg-dark-border transition-colors ${
-                theme === 'system' ? 'text-primary-400 bg-primary-500/10' : 'text-dark-text'
+              className={`w-full px-3 py-2 text-sm text-left flex items-center gap-2 hover:bg-app-border transition-colors ${
+                theme === 'system' ? 'text-primary-400 bg-primary-500/10' : 'text-app-text'
               }`}
             >
               {themeIcon.system}

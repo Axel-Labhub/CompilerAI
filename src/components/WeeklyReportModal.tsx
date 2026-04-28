@@ -86,9 +86,9 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-dark-card border border-dark-border rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+      <div className="bg-app-card border border-app-border rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
         {/* 头部 */}
-        <div className="flex items-center justify-between p-4 border-b border-dark-border">
+        <div className="flex items-center justify-between p-4 border-b border-app-border">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
               <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,13 +96,13 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-dark-text">生成工作周报</h2>
-              <p className="text-sm text-dark-muted">选择笔记，AI 将帮你整合成专业周报</p>
+              <h2 className="text-lg font-semibold text-app-text">生成工作周报</h2>
+              <p className="text-sm text-app-muted">选择笔记，AI 将帮你整合成专业周报</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="p-2 rounded-lg hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -113,10 +113,10 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
         {/* 内容区 */}
         <div className="flex-1 overflow-hidden flex">
           {/* 左侧：笔记选择 */}
-          <div className="w-1/2 border-r border-dark-border flex flex-col">
-            <div className="p-4 border-b border-dark-border">
+          <div className="w-1/2 border-r border-app-border flex flex-col">
+            <div className="p-4 border-b border-app-border">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-dark-muted">
+                <span className="text-sm text-app-muted">
                   已选择 <span className="text-primary-400 font-medium">{selectedCount}</span> 条笔记
                 </span>
                 <div className="flex gap-2">
@@ -134,7 +134,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
                       if (onDeselectAll) onDeselectAll()
                       else if (onSelectNotes) onSelectNotes(new Set())
                     }}
-                    className="text-xs text-dark-muted hover:text-dark-text"
+                    className="text-xs text-app-muted hover:text-app-text"
                   >
                     取消全选
                   </button>
@@ -145,7 +145,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
                 value={weekRange}
                 onChange={(e) => setWeekRange(e.target.value)}
                 placeholder="周报时间范围（如：2024年1月第二周）"
-                className="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg text-sm text-dark-text placeholder-dark-muted focus:outline-none focus:border-primary-500"
+                className="w-full px-3 py-2 bg-app-bg border border-app-border rounded-lg text-sm text-app-text placeholder-app-muted focus:outline-none focus:border-primary-500"
               />
             </div>
 
@@ -169,14 +169,14 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
                   className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                     selectedIds.has(note.id)
                       ? 'border-primary-500 bg-primary-500/10'
-                      : 'border-dark-border hover:border-dark-muted'
+                      : 'border-app-border hover:border-app-muted'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
                       selectedIds.has(note.id)
                         ? 'bg-primary-500 border-primary-500'
-                        : 'border-dark-border'
+                        : 'border-app-border'
                     }`}>
                       {selectedIds.has(note.id) && (
                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,13 +185,13 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-dark-text truncate">{note.title || '无标题'}</h4>
-                      <p className="text-xs text-dark-muted mt-1 line-clamp-2">
+                      <h4 className="font-medium text-app-text truncate">{note.title || '无标题'}</h4>
+                      <p className="text-xs text-app-muted mt-1 line-clamp-2">
                         {note.content.substring(0, 100) || '暂无内容'}
                       </p>
                       <div className="flex gap-1 mt-2 flex-wrap">
                         {note.tags.slice(0, 2).map(tag => (
-                          <span key={tag} className="text-xs px-1.5 py-0.5 bg-dark-bg rounded text-dark-muted">
+                          <span key={tag} className="text-xs px-1.5 py-0.5 bg-app-bg rounded text-app-muted">
                             {tag}
                           </span>
                         ))}
@@ -203,11 +203,11 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
             </div>
 
             {/* 生成按钮 */}
-            <div className="p-4 border-t border-dark-border">
+            <div className="p-4 border-t border-app-border">
               <button
                 onClick={handleGenerate}
                 disabled={selectedCount === 0 || generating}
-                className="w-full py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-dark-border disabled:text-dark-muted text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-app-border disabled:text-app-muted text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {generating ? (
                   <>
@@ -233,15 +233,15 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
           </div>
 
           {/* 右侧：周报预览 */}
-          <div className="w-1/2 flex flex-col bg-dark-bg/50">
+          <div className="w-1/2 flex flex-col bg-app-bg/50">
             {report ? (
               <>
-                <div className="p-4 border-b border-dark-border flex items-center justify-between">
-                  <span className="text-sm text-dark-muted">周报预览</span>
+                <div className="p-4 border-b border-app-border flex items-center justify-between">
+                  <span className="text-sm text-app-muted">周报预览</span>
                   <div className="flex gap-2">
                     <button
                       onClick={handleCopy}
-                      className="px-3 py-1 text-xs bg-dark-border hover:bg-dark-muted/30 rounded-lg text-dark-text transition-colors"
+                      className="px-3 py-1 text-xs bg-app-border hover:bg-app-muted/30 rounded-lg text-app-text transition-colors"
                     >
                       复制
                     </button>
@@ -254,13 +254,13 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4">
-                  <pre className="whitespace-pre-wrap text-sm text-dark-text font-mono leading-relaxed">
+                  <pre className="whitespace-pre-wrap text-sm text-app-text font-mono leading-relaxed">
                     {report.content}
                   </pre>
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-dark-muted">
+              <div className="flex-1 flex flex-col items-center justify-center text-app-muted">
                 <svg className="w-16 h-16 mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>

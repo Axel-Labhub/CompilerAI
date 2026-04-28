@@ -62,16 +62,16 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ noteId, noteTitl
       />
 
       {/* 面板内容 */}
-      <div className="relative bg-dark-card border border-dark-border rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+      <div className="relative bg-app-card border border-app-border rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
         {/* 头部 */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-dark-border">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-app-border">
           <div className="flex items-center gap-2">
             <span className="text-lg">📜</span>
-            <h2 className="text-lg font-semibold text-dark-text">版本历史</h2>
+            <h2 className="text-lg font-semibold text-app-text">版本历史</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded hover:bg-dark-border text-dark-muted hover:text-dark-text transition-colors"
+            className="p-1 rounded hover:bg-app-border text-app-muted hover:text-app-text transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -80,15 +80,15 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ noteId, noteTitl
         </div>
 
         {/* 笔记标题 */}
-        <div className="px-5 py-3 bg-dark-bg/50 border-b border-dark-border">
-          <p className="text-sm text-dark-muted truncate">{noteTitle || '无标题笔记'}</p>
+        <div className="px-5 py-3 bg-app-bg/50 border-b border-app-border">
+          <p className="text-sm text-app-muted truncate">{noteTitle || '无标题笔记'}</p>
         </div>
 
         {/* 版本列表 */}
         <div className="max-h-80 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="flex items-center gap-2 text-dark-muted">
+              <div className="flex items-center gap-2 text-app-muted">
                 <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -97,7 +97,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ noteId, noteTitl
               </div>
             </div>
           ) : versions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-dark-muted">
+            <div className="flex flex-col items-center justify-center py-8 text-app-muted">
               <svg className="w-12 h-12 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -105,13 +105,13 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ noteId, noteTitl
               <p className="text-xs mt-1">保存笔记后会自动记录版本</p>
             </div>
           ) : (
-            <div className="divide-y divide-dark-border">
+            <div className="divide-y divide-app-border">
               {versions.map((version, index) => (
-                <div key={version.id} className="p-4 hover:bg-dark-bg/50 transition-colors group">
+                <div key={version.id} className="p-4 hover:bg-app-bg/50 transition-colors group">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium text-dark-text">
+                        <span className="text-sm font-medium text-app-text">
                           {formatTime(version.createdAt)}
                         </span>
                         {index === 0 && (
@@ -120,7 +120,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ noteId, noteTitl
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-dark-muted line-clamp-2">
+                      <p className="text-xs text-app-muted line-clamp-2">
                         {version.title ? `${version.title} - ` : ''}{getPreview(version.content)}
                       </p>
                     </div>
@@ -138,8 +138,8 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ noteId, noteTitl
         </div>
 
         {/* 底部提示 */}
-        <div className="px-5 py-3 bg-dark-bg/50 border-t border-dark-border">
-          <p className="text-xs text-dark-muted text-center">
+        <div className="px-5 py-3 bg-app-bg/50 border-t border-app-border">
+          <p className="text-xs text-app-muted text-center">
             最多保留 20 个版本
           </p>
         </div>
