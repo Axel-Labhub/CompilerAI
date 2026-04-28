@@ -21,6 +21,8 @@ import {
   HandoverModal,
   MeetingNotesModal,
   ToastProvider,
+  WelcomeGuide,
+  shouldShowWelcomeGuide,
 } from './components'
 import { 
   useNotes, 
@@ -31,9 +33,10 @@ import {
 } from './hooks'
 // 独立导入 useKeyboardShortcuts 以支持更多功能
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import { initDB } from './lib/db'
+import { initDB, createNote as dbCreateNote } from './lib/db'
 import { runDreamCycle } from './lib/dreamCycle'
 import { showToastGlobal } from './lib/toast'
+import { SAMPLE_NOTES } from './lib/sample-notes'
 import type { Note, NoteTemplate, SearchFilters, ExportFormat, ExportOptions, CompiledSection, DreamCycleReport as DreamCycleReportType } from './types'
 
 // App 主组件
@@ -119,6 +122,9 @@ function App() {
   // 会议纪要处理状态
   const [showMeetingNotes, setShowMeetingNotes] = useState(false)
 
+  // 新手指引状态
+  const [showWelcomeGuide, setShowWelcomeGuide] = useState(() => shouldShowWelcomeGuide())
+
   // 搜索和筛选状态
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTag, setActiveTag] = useState<string | null>(null)
@@ -132,6 +138,33 @@ function App() {
         setDbError('数据库初始化失败，请刷新页面重试')
       })
   }, [])
+
+  // 处理示例笔记创建
+  const handleCreateSampleNotes = useCallback(async () => {
+    try {
+      // 创建示例笔记
+      for (const sampleNote of SAMPLE_NOTES) {
+        await dbCreateNote(sampleNote)
+      }
+      // 刷新笔记列表
+      await loadNotes()
+      showToastGlobal('示例笔记已创建', 'success')
+    } catch (err) {
+      console.error('创建示例笔记失败:', err)
+      showToastGlobal('创建示例笔记失败', 'error')
+    }
+  }, [loadNotes])
+
+  // 监听示例笔记事件
+  useEffect(() => {
+    const handleShowSamples = () => {
+      handleCreateSampleNotes()
+    }
+    window.addEventListener('showSampleNotes', handleShowSamples)
+    return () => {
+      window.removeEventListener('showSampleNotes', handleShowSamples)
+    }
+  }, [handleCreateSampleNotes])
 
   // 加载收藏笔记
   const loadFavoriteNotes = useCallback(async () => {
@@ -591,6 +624,17 @@ function App() {
       {showMeetingNotes && (
         <MeetingNotesModal
           onClose={() => setShowMeetingNotes(false)}
+        />
+      )}
+
+      {/* 新手指引 */}
+      {showWelcomeGuide && (
+        <WelcomeGuide
+          onComplete={() => setShowWelcomeGuide(false)}
+          onViewSamples={() => {
+            setShowWelcomeGuide(false)
+            handleCreateSampleNotes()
+          }}
         />
       )}
     </div>
