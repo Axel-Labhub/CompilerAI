@@ -7,7 +7,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import type { Note, SlashCommand, ExportFormat, CompiledSection } from '../types'
+import type { Note, SlashCommand, ExportFormat, ExportOptions, CompiledSection } from '../types'
 import { aiCleanText, aiSuggestTags } from '../lib/ai'
 import { compileNote } from '../lib/compiler'
 import { showToastGlobal } from '../lib/toast'
@@ -34,7 +34,7 @@ interface NoteEditorProps {
   saveStatus: 'saved' | 'saving' | 'unsaved'
   lastSavedAt: Date | null
   onToggleFavorite?: () => void
-  onExport?: (format: ExportFormat) => void
+  onExport?: (format: ExportFormat, options: ExportOptions) => void
 }
 
 export const NoteEditor: React.FC<NoteEditorProps> = ({
@@ -396,9 +396,9 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
   }
 
   // 处理导出
-  const handleExport = (format: ExportFormat) => {
+  const handleExport = (format: ExportFormat, options: ExportOptions) => {
     if (note && onExport) {
-      onExport(format)
+      onExport(format, options)
     }
   }
 

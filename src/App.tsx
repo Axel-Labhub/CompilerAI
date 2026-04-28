@@ -19,7 +19,6 @@ import {
   DreamCycleReport,
   GraphView,
   HandoverModal,
-  MeetingNotesModal,
   ToastProvider,
   WelcomeGuide,
   shouldShowWelcomeGuide,
@@ -617,13 +616,6 @@ function App() {
       {showHandover && (
         <HandoverModal
           onClose={() => setShowHandover(false)}
-        />
-      )}
-
-      {/* 会议纪要处理 */}
-      {showMeetingNotes && (
-        <MeetingNotesModal
-          onClose={() => setShowMeetingNotes(false)}
         />
       )}
 
