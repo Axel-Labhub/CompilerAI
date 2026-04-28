@@ -37,7 +37,3 @@ export { DreamCycleReport } from './DreamCycleReport'
 
 // 关系图谱
 export { GraphView } from './GraphView'
-
-// 激活码系统
-export { ActivationModal } from './ActivationModal'
-export { LicenseStatus, useLicenseCheck, FeatureLocked } from './LicenseStatus'

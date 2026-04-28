@@ -25,3 +25,5 @@ npm-debug.log*
 
 # Vercel
 .vercel
+# 产品文档（本地保留，不上传）
+产品文档/
