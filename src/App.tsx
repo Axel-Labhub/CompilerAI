@@ -505,12 +505,14 @@ function App() {
       />
 
       {/* 收藏夹 */}
-      <Favorites
-        notes={favoriteNotes}
-        onNoteClick={handleOpenNote}
-        onToggleFavorite={handleToggleFavorite}
-        onClose={() => setShowFavorites(false)}
-      />
+      {_showFavorites && (
+        <Favorites
+          notes={favoriteNotes}
+          onNoteClick={handleOpenNote}
+          onToggleFavorite={handleToggleFavorite}
+          onClose={() => setShowFavorites(false)}
+        />
+      )}
 
       {/* 梦境循环报告 */}
       {showDreamCycle && (
