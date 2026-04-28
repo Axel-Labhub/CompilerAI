@@ -20,20 +20,25 @@ export default {
           800: '#075985',
           900: '#0c4a6e',
         },
-        dark: {
-          bg: '#0f172a',
-          card: '#1e293b',
-          border: '#334155',
-          text: '#f1f5f9',
-          muted: '#94a3b8',
-        },
-        light: {
-          bg: '#f8fafc',
-          card: '#ffffff',
-          border: '#e2e8f0',
-          text: '#1e293b',
-          muted: '#64748b',
+        // 使用 CSS 变量实现主题自动切换
+        app: {
+          bg: 'var(--color-bg)',
+          card: 'var(--color-card)',
+          border: 'var(--color-border)',
+          text: 'var(--color-text)',
+          muted: 'var(--color-muted)',
         }
+      },
+      backgroundColor: {
+        'app-bg': 'var(--color-bg)',
+        'app-card': 'var(--color-card)',
+      },
+      textColor: {
+        'app-text': 'var(--color-text)',
+        'app-muted': 'var(--color-muted)',
+      },
+      borderColor: {
+        'app-border': 'var(--color-border)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

@@ -288,6 +288,10 @@ export const KEYBOARD_SHORTCUTS: KeyboardShortcut[] = [
   { key: 'Ctrl/Cmd + F', description: '搜索', mac: '⌘ + F', windows: 'Ctrl + F' },
   { key: 'Ctrl/Cmd + P', description: '预览模式', mac: '⌘ + P', windows: 'Ctrl + P' },
   { key: 'Ctrl/Cmd + .', description: '全屏模式', mac: '⌘ + .', windows: 'Ctrl + .', },
+  { key: 'Ctrl/Cmd + Shift + C', description: 'AI 清洗当前内容', mac: '⌘ + ⇧ + C', windows: 'Ctrl + Shift + C' },
+  { key: 'Ctrl/Cmd + Shift + R', description: 'AI 编译真相', mac: '⌘ + ⇧ + R', windows: 'Ctrl + Shift + R' },
+  { key: 'Ctrl/Cmd + Shift + W', description: '生成周报', mac: '⌘ + ⇧ + W', windows: 'Ctrl + Shift + W' },
+  { key: 'Ctrl/Cmd + /', description: '显示/隐藏快捷键帮助', mac: '⌘ + /', windows: 'Ctrl + /' },
   { key: 'Escape', description: '关闭弹窗/返回', windows: 'Esc' },
   { key: 'Tab', description: '插入缩进', windows: 'Tab' },
   { key: '?', description: '显示快捷键帮助', windows: '?' },
@@ -365,4 +369,92 @@ export interface DreamCycleConfig {
   enabled: boolean
   scheduleTime: string  // HH:mm 格式，每天执行时间
   lastRun?: number      // 上次运行时间
+}
+
+// ==================== 离职交接报告 ====================
+
+// 交接项目信息
+export interface HandoverProject {
+  name: string
+  description: string
+  status: '进行中' | '已完成' | '暂停' | '待交接'
+  progress: string
+  contactPerson: string
+  keyMilestones?: string[]
+  documents?: string[]
+  notes?: string
+}
+
+// 联系人信息
+export interface HandoverContact {
+  name: string
+  role: string
+  department: string
+  phone?: string
+  email?: string
+  wechat?: string
+  responsibilities: string
+}
+
+// 待办事项
+export interface HandoverTodo {
+  task: string
+  priority: '高' | '中' | '低'
+  deadline?: string
+  assignee?: string
+  status: '待处理' | '进行中' | '已完成'
+}
+
+// 文档索引
+export interface HandoverDocument {
+  name: string
+  location: string
+  description: string
+  lastUpdated?: string
+}
+
+// 重要提醒
+export interface HandoverReminder {
+  category: '账号' | '权限' | '合同' | '设备' | '其他'
+  title: string
+  description: string
+  action?: string
+}
+
+// 离职交接报告
+export interface HandoverReport {
+  title: string
+  employeeName: string
+  department: string
+  position: string
+  lastWorkDate: string
+  handoverDate: string
+  projects: HandoverProject[]
+  contacts: HandoverContact[]
+  todos: HandoverTodo[]
+  documents: HandoverDocument[]
+  reminders: HandoverReminder[]
+  accountCredentials?: HandoverAccount[]
+  additionalNotes?: string
+  generatedAt: number
+}
+
+// 账号密码记录（用于内部交接，不对外公开）
+export interface HandoverAccount {
+  system: string
+  username: string
+  // password 字段会在 UI 层加密显示，不直接存储
+  accessLevel: string
+  notes?: string
+}
+
+// 交接报告内容类型
+export interface HandoverContent {
+  projectList: string        // 项目交接清单
+  todoList: string           // 待办事项列表
+  contactList: string        // 联系人列表
+  documentIndex: string      // 文档索引
+  importantReminders: string // 重要提醒
+  accountCredentials?: string // 账号密码记录（加密）
+  additionalNotes?: string   // 补充说明
 }
