@@ -10,7 +10,6 @@ import remarkGfm from 'remark-gfm'
 import type { Note, SlashCommand, ExportFormat, CompiledSection } from '../types'
 import { aiCleanText, aiSuggestTags } from '../lib/ai'
 import { compileNote } from '../lib/compiler'
-import { getLicenseStatus } from '../lib/license'
 
 // 新增组件导入
 import MarkdownToolbar from './MarkdownToolbar'
@@ -35,7 +34,6 @@ interface NoteEditorProps {
   lastSavedAt: Date | null
   onToggleFavorite?: () => void
   onExport?: (format: ExportFormat) => void
-  onActivate?: () => void
 }
 
 export const NoteEditor: React.FC<NoteEditorProps> = ({
@@ -49,7 +47,6 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
   lastSavedAt,
   onToggleFavorite,
   onExport,
-  onActivate,
 }) => {
   const [title, setTitle] = useState(note?.title || '')
   const [content, setContent] = useState(note?.content || '')
@@ -78,28 +75,24 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
   // 反向链接
   const { backlinks } = useNoteLinks(note?.id || null)
   
-  // 激活状态
-  const [isLicenseActive, setIsLicenseActive] = useState(false)
-  const [showActivationTip, setShowActivationTip] = useState(false)
-  
-  // 检查激活状态
-  useEffect(() => {
-    const checkLicense = async () => {
-      const status = await getLicenseStatus()
-      setIsLicenseActive(status.isActivated)
-    }
-    checkLicense()
-  }, [])
-  
-  // 显示激活提示
-  const showActivationPrompt = useCallback(() => {
-    if (!isLicenseActive) {
-      setShowActivationTip(true)
-      setTimeout(() => setShowActivationTip(false), 3000)
-      return true
-    }
-    return false
-  }, [isLicenseActive])
+  // 激活状态（已禁用 for MVP）
+  // const [isLicenseActive, setIsLicenseActive] = useState(false)
+  // const [showActivationTip, setShowActivationTip] = useState(false)
+  // useEffect(() => {
+  //   const checkLicense = async () => {
+  //     const status = await getLicenseStatus()
+  //     setIsLicenseActive(status.isActivated)
+  //   }
+  //   checkLicense()
+  // }, [])
+  // const showActivationPrompt = useCallback(() => {
+  //   if (!isLicenseActive) {
+  //     setShowActivationTip(true)
+  //     setTimeout(() => setShowActivationTip(false), 3000)
+  //     return true
+  //   }
+  //   return false
+  // }, [isLicenseActive])
   
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -253,7 +246,6 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
 
   // AI 清洗
   const handleAIClean = async () => {
-    if (showActivationPrompt()) return
     if (!content.trim()) return
     
     setAiMode('clean')
@@ -272,7 +264,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
 
   // AI 生成标签
   const handleAITags = async () => {
-    if (showActivationPrompt()) return
+    
     if (!title.trim() && !content.trim()) return
     
     setAiMode('tags')
@@ -305,7 +297,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
 
   // 编译笔记
   const handleCompile = async () => {
-    if (showActivationPrompt()) return
+    
     if (!title.trim() && !content.trim()) return
     
     setIsCompiling(true)
@@ -470,25 +462,6 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
       {/* AI 面板 */}
       {showAiPanel && (
         <div className="border-b border-dark-border bg-dark-card/50 p-4">
-          {/* 激活提示 */}
-          {showActivationTip && (
-            <div className="mb-3 p-3 bg-primary-500/20 border border-primary-500/30 rounded-lg flex items-center gap-3">
-              <svg className="w-5 h-5 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div className="flex-1">
-                <span className="text-sm text-primary-400">AI 功能需要激活码，请先激活</span>
-              </div>
-              {onActivate && (
-                <button
-                  onClick={onActivate}
-                  className="px-3 py-1 bg-primary-500 text-white text-xs font-medium rounded-lg hover:bg-primary-600 transition-colors"
-                >
-                  激活
-                </button>
-              )}
-            </div>
-          )}
           
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
