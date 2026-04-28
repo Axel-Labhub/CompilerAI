@@ -22,6 +22,78 @@ export function resetTokenCount(): void {
   totalTokensUsed = 0
 }
 
+// ==================== 错误类型定义 ====================
+
+/**
+ * AI API 错误类型
+ */
+export enum AIErrorType {
+  /** API 未配置 */
+  NOT_CONFIGURED = 'NOT_CONFIGURED',
+  /** 网络连接错误 */
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  /** API 请求超时 */
+  TIMEOUT = 'TIMEOUT',
+  /** API 认证失败 */
+  AUTH_ERROR = 'AUTH_ERROR',
+  /** API 限流 */
+  RATE_LIMIT = 'RATE_LIMIT',
+  /** API 服务器错误 */
+  SERVER_ERROR = 'SERVER_ERROR',
+  /** API 返回格式错误 */
+  PARSE_ERROR = 'PARSE_ERROR',
+  /** 未知错误 */
+  UNKNOWN = 'UNKNOWN',
+}
+
+/**
+ * AI API 错误类
+ */
+export class AIError extends Error {
+  type: AIErrorType
+  originalError?: Error
+  isRetryable: boolean
+
+  constructor(type: AIErrorType, message: string, originalError?: Error) {
+    super(message)
+    this.name = 'AIError'
+    this.type = type
+    this.originalError = originalError
+    
+    // 判断是否可重试
+    this.isRetryable = [
+      AIErrorType.TIMEOUT,
+      AIErrorType.SERVER_ERROR,
+      AIErrorType.RATE_LIMIT,
+      AIErrorType.NETWORK_ERROR,
+    ].includes(type)
+  }
+}
+
+/**
+ * 获取友好的错误提示信息
+ */
+export function getAIErrorMessage(error: AIError): string {
+  switch (error.type) {
+    case AIErrorType.NOT_CONFIGURED:
+      return 'AI 功能尚未配置，请先在设置中配置 API'
+    case AIErrorType.TIMEOUT:
+      return '请求超时，AI 响应较慢，请稍后重试'
+    case AIErrorType.NETWORK_ERROR:
+      return '网络连接失败，请检查网络后重试'
+    case AIErrorType.AUTH_ERROR:
+      return 'API 认证失败，请检查 API Key 是否正确'
+    case AIErrorType.RATE_LIMIT:
+      return '请求过于频繁，请稍后再试'
+    case AIErrorType.SERVER_ERROR:
+      return 'AI 服务暂时不可用，请稍后重试'
+    case AIErrorType.PARSE_ERROR:
+      return 'AI 返回格式异常，已使用本地处理'
+    default:
+      return error.message || 'AI 处理失败，请稍后重试'
+  }
+}
+
 // ==================== 豆包 API 调用核心 ====================
 
 /**
@@ -33,8 +105,10 @@ async function callDoubaoAPI(
   options?: { temperature?: number; max_tokens?: number }
 ): Promise<string> {
   if (!isAIConfigured()) {
-    console.warn('AI API 未配置，使用模拟实现')
-    return ''
+    throw new AIError(
+      AIErrorType.NOT_CONFIGURED,
+      'AI API 未配置，使用模拟实现'
+    )
   }
 
   try {
@@ -61,10 +135,40 @@ async function callDoubaoAPI(
 
     clearTimeout(timeoutId)
 
+    // 处理 HTTP 错误状态
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       const errorMsg = errorData.error?.message || errorData.message || response.statusText
-      throw new Error(`AI API 调用失败 (${response.status}): ${errorMsg}`)
+
+      switch (response.status) {
+        case 401:
+        case 403:
+          throw new AIError(
+            AIErrorType.AUTH_ERROR,
+            `API 认证失败 (${response.status}): ${errorMsg}`,
+            new Error(errorMsg)
+          )
+        case 429:
+          throw new AIError(
+            AIErrorType.RATE_LIMIT,
+            `请求过于频繁，请稍后再试 (${response.status})`,
+            new Error(errorMsg)
+          )
+        case 500:
+        case 502:
+        case 503:
+          throw new AIError(
+            AIErrorType.SERVER_ERROR,
+            `AI 服务暂时不可用 (${response.status})，请稍后重试`,
+            new Error(errorMsg)
+          )
+        default:
+          throw new AIError(
+            AIErrorType.SERVER_ERROR,
+            `AI API 调用失败 (${response.status}): ${errorMsg}`,
+            new Error(errorMsg)
+          )
+      }
     }
 
     const data = await response.json()
@@ -76,15 +180,58 @@ async function callDoubaoAPI(
     }
     
     // 兼容两种响应格式
-    return data.choices?.[0]?.message?.content || data.output || ''
+    const content = data.choices?.[0]?.message?.content || data.output || ''
+    
+    // 检查返回内容是否为空
+    if (!content || content.trim() === '') {
+      throw new AIError(
+        AIErrorType.PARSE_ERROR,
+        'AI 返回内容为空',
+        new Error('Empty response')
+      )
+    }
+    
+    return content
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        throw new Error('AI API 调用超时，请检查网络连接')
-      }
+    if (error instanceof AIError) {
       throw error
     }
-    throw new Error('AI API 调用失败: 未知错误')
+    
+    if (error instanceof Error) {
+      // 处理 AbortError（超时）
+      if (error.name === 'AbortError') {
+        throw new AIError(
+          AIErrorType.TIMEOUT,
+          'AI API 调用超时，请检查网络连接',
+          error
+        )
+      }
+      
+      // 处理网络错误
+      if (error.message.includes('fetch') || 
+          error.message.includes('network') ||
+          error.message.includes('Failed to fetch') ||
+          error.message.includes('NetworkError')) {
+        throw new AIError(
+          AIErrorType.NETWORK_ERROR,
+          '网络连接失败，请检查网络后重试',
+          error
+        )
+      }
+      
+      // 其他错误
+      throw new AIError(
+        AIErrorType.UNKNOWN,
+        `AI API 调用失败: ${error.message}`,
+        error
+      )
+    }
+    
+    throw new AIError(
+      AIErrorType.UNKNOWN,
+      'AI API 调用失败: 未知错误',
+      undefined
+    )
   }
 }
 
@@ -96,32 +243,392 @@ function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-// 情绪词映射表
-const EMOTION_MAP: Record<string, string> = {
-  '真烦': '需要进一步沟通确认',
-  '烦死了': '需要协调资源解决',
-  '无语': '存在理解偏差，需澄清',
+// ==================== 情绪词映射表（扩充至100+） ====================
+
+/**
+ * 负面情绪词 → 正式表达
+ */
+const NEGATIVE_EMOTIONS: Record<string, string> = {
+  // 烦恼类
+  '烦死了': '需要进一步协调处理',
+  '好烦': '需持续关注',
+  '太烦了': '需多方协调',
+  '烦': '需要处理',
+  '心烦': '需调整方案',
+  '闹心': '存在待解决问题',
+  '纠结': '需进一步明确需求',
+  '心塞': '资源受限，需调整策略',
+  '闹腾': '存在较多干扰因素',
+  '蛋疼': '问题较棘手',
+  '扎心': '触及敏感点',
+
+  // 崩溃类
   '崩溃': '遇到技术挑战，需重点关注',
-  '累死': '工作量较大，需评估优先级',
-  '坑': '发现潜在风险点',
-  '恶心': '遇到不符合预期的状况',
-  '牛逼': '高质量完成',
-  '厉害': '表现出色',
-  '摸鱼': '高效完成工作',
+  '要崩溃': '遇到较大阻力',
+  '快崩溃': '工作压力较大',
+  '崩了': '遇到突发问题',
+  '原地爆炸': '情况超出预期',
+  '炸裂': '影响范围较大',
+  '裂开': '问题较严重',
+  '碎了': '信心受挫',
+
+  // 无语类
+  '无语': '存在理解偏差，需澄清',
+  '真无语': '与预期有较大出入',
+  '超无语': '存在较大认知差异',
+  '服了': '需重新评估方案',
+  '服气': '需要调整认知',
+  '无话可说': '需要进一步沟通',
+  '没话说': '需补充信息',
+
+  // 疲惫类
+  '累死了': '工作量较大，需评估优先级',
+  '太累了': '工作强度较高',
+  '累': '工作量较大',
+  '疲惫': '需适当调整节奏',
+  '疲倦': '精力消耗较大',
+  '精疲力竭': '资源耗尽，需休整',
+  '透支': '超负荷运转',
+  '虚脱': '精力不足',
+
+  // 头大/焦虑类
+  '头大': '复杂度较高',
+  '头秃': '技术难度较大',
+  '焦虑': '需要资源支持',
+  '焦虑症': '压力较大，需关注',
+  '着急': '时间紧迫',
+  '急死': '交付时间临近',
+  '慌张': '需稳定心态',
+  '紧张': '准备不够充分',
+  '压力山大': '承压较大',
+  '秃头': '难度较大',
+  '掉头发': '耗时较长',
+
+  // 烦躁类
+  '烦躁': '需协调多方意见',
+  '暴躁': '沟通方式需调整',
+  '郁闷': '存在未解决的阻塞问题',
+  '难受': '工作体验受影响',
+  '不爽': '存在不满意因素',
+  '憋屈': '诉求未能表达',
+
+  // 气恼类
+  '气死了': '情绪激动，需冷静处理',
+  '气': '情绪波动',
+  '恼火': '状况超出预期',
+  '恼人': '存在持续干扰因素',
+  '火大': '冲突较明显',
+  '抓狂': '问题较为棘手',
+  '暴怒': '情绪失控',
+
+  // 无奈类
+  '无奈': '资源或条件受限',
+  '醉了': '情况复杂',
+  '瞎了': '信息量过大',
+  '麻了': '已习以为常',
+  '麻': '需调整心态',
+
+  // 委屈类
+  '委屈': '付出未被认可',
+  '冤枉': '存在误解',
+  '吃亏': '权益受损',
+
+  // 失望类
+  '失望': '结果未达预期',
+  '绝望': '需重新定位方向',
+  '心凉': '信心受挫',
+  '凉凉': '前景不明朗',
+  '完蛋': '情况不乐观',
+
+  // 酸类（网络语）
+  '酸了': '存在竞争心态',
+  '柠檬精': '存在比较心理',
+  '羡慕': '期望提升',
+  '嫉妒': '存在竞争意识',
+  '眼红': '利益诉求',
+  '柠檬': '需调整心态',
+
+  // 躺平摆烂类
+  '躺平': '采取保守策略',
+  '摆烂': '暂不追求突破',
+  '摸鱼': '高效完成基础任务',
+  '划水': '完成基本工作',
+  '佛系': '采取稳健策略',
+  '躺': '保持现状',
+  '开摆': '暂不追求突破',
+  '摆': '灵活处理',
+
+  // 内卷类
+  '卷': '竞争激烈',
+  '太卷了': '行业竞争加剧',
+  '内卷': '资源争夺激烈',
+  '卷王': '高绩效表现者',
+  '卷不动': '需要策略调整',
+  '卷死': '竞争过于激烈',
+
+  // 吐槽类
+  '坑': '存在潜在风险',
+  '巨坑': '存在重大风险',
+  '天坑': '风险程度较高',
+  '挖坑': '引入新风险点',
+  '坑爹': '问题严重程度较高',
+  '坑人': '影响权益',
+  '恶心': '不符合预期',
+  '恶心人': '存在干扰因素',
+  '膈应': '存在不适因素',
+
+  // 甩锅扯皮类
   '甩锅': '需明确责任边界',
   '扯皮': '需多方协调',
+  '推诿': '责任不清晰',
+  '踢皮球': '流程待优化',
+  '背锅': '承担额外责任',
+  '背锅侠': '承担责任较多',
+  '接锅': '承担责任',
+
+  // 画饼类
+  '画饼': '目标设定过高',
+  '大饼': '承诺难以兑现',
+  '饼太大': '目标需分阶段实现',
+  'PPT': '方案待落地',
+  '大饼画圆': '承诺需逐步兑现',
+
+  // PUA类
+  'PUA': '沟通方式需调整',
+  'CPU': '需理性判断',
+  '职场PUA': '管理方式待改进',
+
+  // KPI/考核类
+  'KPI压死人': '绩效目标较高',
+  '卷绩效': '追求更高绩效',
+  '绩效考核': '定期评估',
+  '绩效压力': '承压较大',
+
+  // 加班类
   '加班': '投入额外工作时长',
-  '头大': '复杂度较高',
+  '通宵': '工作强度较大',
+  '肝': '投入大量精力',
+  '肝不动': '精力有限',
+  '爆肝': '严重透支',
+  '996': '工作时间较长',
+  '007': '全天候待命',
+  '大小周': '工作节奏紧凑',
+  '周末加班': '投入额外工作时间',
+
+  // 开会类
+  '开会': '进行沟通会议',
+  '无效会议': '会议效率待提升',
+  '文山会海': '沟通成本较高',
+  '拉会': '组织协调',
+
+  // 职场黑话类
+  '对齐': '信息同步',
+  '拉齐': '多方协调',
+  '落地': '实施执行',
+  '赋能': '提供支持',
+  '闭环': '完成闭环',
+  '抓手': '切入点',
+  '打法': '策略方案',
+  '维度': '角度考量',
+  '沉淀': '积累经验',
+  '复用': '重复使用',
+  '透传': '直接传递',
+  '中台': '共享平台',
+  '垂直': '专业领域',
+  '横向': '跨部门协作',
+  '纵深': '深度发展',
+  '迭代': '持续优化',
+  '灰度': '分批发布',
+  '容灾': '备份机制',
+  '降级': '降低服务级别',
+  '熔断': '紧急中断',
+  '赋能业务': '支持业务发展',
+  '打通': '实现联通',
+  '整合': '资源优化配置',
+  '聚焦': '专注核心领域',
+  '突破': '达成关键进展',
+  '协同': '多方协作配合',
+  '联动': '跨部门协作',
+  '对齐颗粒度': '细化目标共识',
+
+  // 邮件/文档类
+  '回邮件': '进行邮件沟通',
+  '写报告': '进行文档输出',
+  '写文档': '进行文档整理',
+  'PPT造火箭': '形式大于内容',
 }
 
-const FORMAL_TRANSFORM: Record<string, string> = {
+/**
+ * 吐槽表达词 → 正式表达
+ */
+const SARCASM_EXPRESSIONS: Record<string, string> = {
+  // 坑类
+  '坑': '发现潜在风险点',
+  '巨坑': '存在重大风险',
+  '天坑': '风险程度较高',
+  '挖坑': '引入新风险点',
+  '坑爹': '问题严重程度较高',
+  
+  // 恶心类
+  '恶心': '遇到不符合预期的状况',
+  '太恶心': '严重偏离预期',
+  '反胃': '问题性质恶劣',
+  '吐了': '问题影响恶劣',
+  
+  // 甩锅类
+  '甩锅': '需明确责任边界',
+  '甩': '责任归属需明确',
+  '推卸': '职责边界需清晰',
+  
+  // 扯皮类
+  '扯皮': '需多方协调',
+  '皮球': '流程待优化',
+  '踢皮球': '协作机制待完善',
+  
+  // 摆烂类
+  '摆烂': '需重新审视执行策略',
+  '烂': '质量有待提升',
+  
+  // 摸鱼类
+  '摸鱼': '高效完成工作',
+  '摸': '灵活调整工作方式',
+  
+  // 划水类
+  '划水': '高效完成工作',
+  '水': '工作方式灵活',
+  
+  // 偷懒类
+  '偷懒': '注重效率优化',
+  '懒': '方法值得借鉴',
+  
+  // 内卷类
+  '内卷': '竞争较激烈',
+  '卷': '投入度较高',
+  '卷王': '表现出色',
+}
+
+/**
+ * 积极/夸赞表达词 → 正式表达
+ */
+const POSITIVE_EXPRESSIONS: Record<string, string> = {
+  // 牛逼类
+  '牛逼': '高质量完成',
+  'NB': '高质量完成',
+  '牛': '表现优异',
+  '牛批': '表现卓越',
+  '牛叉': '成果超出预期',
+  
+  // 厉害类
+  '厉害': '表现出色',
+  '强': '能力突出',
+  '太强了': '远超预期',
+  '太强': '超出预期',
+  '超厉害': '表现卓越',
+  
+  // YYDS类
+  'YYDS': '堪称典范',
+  '永远的神': '标杆案例',
+  '绝了': '效果极佳',
+  '绝绝子': '效果卓越',
+  
+  // 赞类
+  '赞': '完成度较高',
+  '点赞': '值得肯定',
+  '棒': '表现良好',
+  '棒棒哒': '完成度良好',
+  '优秀': '成果优秀',
+  '优秀啊': '成果优秀，值得表扬',
+}
+
+/**
+ * 口语化动词 → 正式表达
+ */
+const COLLOQUIAL_VERBS: Record<string, string> = {
+  // 完成类
   '搞定了': '已完成',
+  '搞定': '已完成',
+  '搞完': '已完成',
+  '搞掂': '已完成',
+  '完事': '已完成',
+  
+  // 操作类
   '搞': '完成',
   '弄': '处理',
   '怼': '推进',
   '肝': '投入开发',
   '跑': '执行',
   '整': '进行',
+  '整活': '创新尝试',
+  '搞起': '启动执行',
+  
+  // 开发类
+  '写': '编写',
+  '撸': '开发实现',
+  '敲': '编码',
+  '码': '开发',
+  '搬砖': '完成开发任务',
+  '砌砖': '完成开发工作',
+  
+  // 推进类
+  '催': '跟进',
+  'push': '推进',
+  '推': '推进',
+  '赶': '推进',
+  '催命': '紧急跟进',
+  
+  // 修复类
+  '修': '修复',
+  '改': '优化',
+  '调': '调整',
+  '调教': '调试优化',
+  
+  // 沟通类
+  '聊': '沟通',
+  '唠': '交流',
+  '扯': '讨论',
+  '吹': '交流',
+}
+
+/**
+ * 综合情绪词映射（用于模拟清洗）
+ * 合并以上所有分类
+ */
+const EMOTION_MAP: Record<string, string> = {
+  ...NEGATIVE_EMOTIONS,
+  ...SARCASM_EXPRESSIONS,
+  ...POSITIVE_EXPRESSIONS,
+  ...COLLOQUIAL_VERBS,
+  
+  // 特殊符号处理
+  '!!!': '。',
+  '!!': '。',
+}
+
+/**
+ * 口语化表达正式化映射
+ */
+const FORMAL_TRANSFORM: Record<string, string> = {
+  ...COLLOQUIAL_VERBS,
+  
+  // 语气词处理
+  '哈': '',
+  '呀': '',
+  '嘛': '',
+  '哦': '，',
+  '嗷': '，',
+  '嗯': '，',
+  
+  // 重复表达
+  '真的': '确实',
+  '真的是': '确实是',
+  '其实': '实际上',
+  '就是': '',
+  
+  // 感叹词
+  '卧槽': '经过评估',
+  '我去': '经过处理',
+  '天哪': '经分析',
+  '我的天': '经分析发现',
 }
 
 // ==================== AI 一键清洗 ====================
@@ -136,22 +643,77 @@ export async function aiCleanText(text: string): Promise<string> {
   if (isAIConfigured()) {
     const systemPrompt = `你是一个专业的职场内容编辑，负责将情绪化的文字转换为中立、专业的表述。
 
-要求：
-1. 保持原意不变，只改变表达方式
-2. 去除情绪化词汇和口语化表达
-3. 使用专业、客观、正式的职场语言
-4. 保持原有的逻辑结构和段落划分
-5. 直接输出清洗后的文本，不要添加解释`
+## 核心原则
+1. **保持原意**：只改变表达方式，不改变核心信息
+2. **去除情绪**：删除或转化情绪化词汇、感叹词
+3. **正式表达**：使用客观、专业、书面的职场语言
+4. **结构保留**：保持原有的段落结构和逻辑顺序
+
+## 需要处理的常见情况
+
+### 1. 负面情绪词转化示例
+| 输入 | 输出 |
+|------|------|
+| "这个需求真烦，改了三遍了" | "该需求经过三轮迭代" |
+| "累死了加班到凌晨" | "投入额外工作时长完成" |
+| "崩溃了，bug修不好" | "该问题需重点关注解决" |
+| "头大，需求又变了" | "需求复杂度较高" |
+| "无语，文档又写错了" | "存在文档偏差，需澄清" |
+| "心塞，被客户投诉了" | "收到客户反馈，需改进" |
+| "郁闷，方案被否了" | "方案需调整优化" |
+| "气死了，甩锅给我" | "责任边界需明确" |
+
+### 2. 吐槽表达转化示例
+| 输入 | 输出 |
+|------|------|
+| "这个坑太深了" | "存在较大风险点" |
+| "又要扯皮了" | "需多方协调" |
+| "谁在甩锅" | "责任归属需明确" |
+| "天天摸鱼也行" | "高效完成工作" |
+| "又开始划水" | "灵活调整工作方式" |
+| "这个功能太恶心了" | "存在不符合预期的状况" |
+
+### 3. 口语化动词转化示例
+| 输入 | 输出 |
+|------|------|
+| "终于搞定了" | "已完成" |
+| "代码撸完了" | "代码编写完成" |
+| "需求怼上去了" | "需求已推进" |
+| "肝了两天" | "投入两天开发" |
+| "今天整了个新功能" | "今天完成了新功能开发" |
+| "赶紧催一下" | "请跟进确认" |
+| "催命啊" | "紧急跟进" |
+
+### 4. 积极夸赞词转化示例
+| 输入 | 输出 |
+|------|------|
+| "这个方案牛逼" | "该方案质量较高" |
+| "太厉害了" | "表现优异" |
+| "YYDS" | "堪称典范" |
+| "绝了" | "效果极佳" |
+| "卷王无疑" | "投入度较高" |
+
+### 5. 标点符号处理
+- 删除连续感叹号 "！！！" → "。"
+- 删除无意义的语气词
+
+## 输出要求
+- 直接输出清洗后的文本，不要添加任何解释或说明
+- 如果文本已足够正式，可保持原样输出
+- 保留重要的技术术语和数据`
 
     try {
       const result = await callDoubaoAPI(systemPrompt, text)
       if (result) return result
     } catch (error) {
-      console.error('AI 清洗失败，使用模拟实现:', error)
+      const errorMessage = error instanceof AIError 
+        ? getAIErrorMessage(error)
+        : 'AI 清洗失败'
+      console.warn(`${errorMessage}，使用本地模拟实现`)
     }
   }
 
-  // 未配置 API，使用模拟实现
+  // 未配置 API 或发生错误，使用模拟实现
   await delay(SIMULATE_DELAY)
   return simulateCleanText(text)
 }
@@ -209,7 +771,7 @@ export async function aiSuggestTags(title: string, content: string): Promise<Tag
       )
       
       if (!result) {
-        throw new Error('API 返回为空')
+        throw new AIError(AIErrorType.PARSE_ERROR, 'API 返回为空')
       }
       
       // 解析 JSON 响应
@@ -222,7 +784,11 @@ export async function aiSuggestTags(title: string, content: string): Promise<Tag
         }))
       }
     } catch (error) {
-      console.error('AI 标签生成失败，使用模拟实现:', error)
+      if (error instanceof AIError) {
+        console.warn(`${getAIErrorMessage(error)}，使用本地模拟实现`)
+      } else {
+        console.warn('AI 标签生成失败，使用本地模拟实现')
+      }
     }
   }
 
@@ -312,23 +878,52 @@ export async function aiGenerateWeeklyReport(
     
     const systemPrompt = `你是一个专业的职场周报撰写专家，负责根据用户提供的笔记内容生成结构化的周报。
 
-要求：
-1. 按以下结构输出周报：
-   - 本周工作重点（3-5条）
-   - 主要成果（量化数据优先）
-   - 遇到的问题及解决方案
-   - 下周计划
-2. 语言专业、简洁、客观
-3. 突出重点和成果
-4. 输出格式：JSON对象
+## 周报结构（严格按照以下顺序输出）
+
+### 1. 概述（必填）
+- 一句话概括本周整体工作
+- 包含关键数据和亮点
+
+### 2. 本周重点（3-5条）
+- 每条一行，简洁有力
+- 按重要程度排序
+- 使用动词开头
+
+### 3. 主要成果（量化优先）
+- 优先列出可量化的成果
+- 包含具体数字、比例、完成率
+- 如无数据，可用"完成XX阶段"表述
+
+### 4. 问题与解决（可选）
+- 简述遇到的问题
+- 重点说明解决方案
+- 体现解决问题的能力
+
+### 5. 下周计划（2-4条）
+- 明确的预期目标
+- 可执行的具体任务
+- 预计完成时间
+
+## 语言规范
+- 正式、客观、专业
+- 避免情绪化表达
+- 数据说话，成果导向
+- 控制在200-400字
+
+## 输出格式（必须是有效JSON）
 {
-  "title": "第X周工作周报",
+  "title": "第X周工作周报 - YYYY年MM月DD日",
   "summary": "本周工作概述（1-2句话）",
-  "highlights": ["重点1", "重点2", "重点3"],
-  "achievements": ["成果1", "成果2"],
-  "problems": ["问题及解决方案"],
-  "nextWeek": ["下周计划1", "下周计划2"]
-}`
+  "highlights": ["重点1 - 包含数字", "重点2", "重点3"],
+  "achievements": ["成果1 - 量化数据", "成果2"],
+  "problems": ["问题描述 → 解决方案"],
+  "nextWeek": ["计划1 - 目标", "计划2 - 目标"]
+}
+
+## 注意事项
+- 只输出JSON对象，不要添加任何说明文字
+- 如果笔记内容不足以生成某项，填入"暂无"或空数组
+- 确保JSON格式正确，可被解析`
 
     try {
       const result = await callDoubaoAPI(
@@ -338,7 +933,7 @@ export async function aiGenerateWeeklyReport(
       )
       
       if (!result) {
-        throw new Error('API 返回为空')
+        throw new AIError(AIErrorType.PARSE_ERROR, 'API 返回为空')
       }
       
       const report = JSON.parse(result)
@@ -355,7 +950,13 @@ export async function aiGenerateWeeklyReport(
         generatedAt: Date.now(),
       }
     } catch (error) {
-      console.error('AI 周报生成失败，使用模拟实现:', error)
+      if (error instanceof AIError) {
+        console.warn(`${getAIErrorMessage(error)}，使用本地模拟实现`)
+      } else if (error instanceof SyntaxError) {
+        console.warn('AI 周报格式解析失败，使用本地模拟实现')
+      } else {
+        console.warn('AI 周报生成失败，使用本地模拟实现')
+      }
     }
   }
 
@@ -448,7 +1049,7 @@ export async function aiExtractInsights(content: string): Promise<{
       )
       
       if (!result) {
-        throw new Error('API 返回为空')
+        throw new AIError(AIErrorType.PARSE_ERROR, 'API 返回为空')
       }
       
       const insights = JSON.parse(result)
@@ -457,7 +1058,13 @@ export async function aiExtractInsights(content: string): Promise<{
         keyInsights: insights.keyInsights || [],
       }
     } catch (error) {
-      console.error('AI 洞察提炼失败，使用模拟实现:', error)
+      if (error instanceof AIError) {
+        console.warn(`${getAIErrorMessage(error)}，使用本地模拟实现`)
+      } else if (error instanceof SyntaxError) {
+        console.warn('AI 洞察格式解析失败，使用本地模拟实现')
+      } else {
+        console.warn('AI 洞察提炼失败，使用本地模拟实现')
+      }
     }
   }
 
