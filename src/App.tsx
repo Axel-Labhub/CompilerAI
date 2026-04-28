@@ -17,8 +17,6 @@ import {
   TemplateSelector,
   Favorites,
   DreamCycleReport,
-  ActivationModal,
-  LicenseStatus,
   GraphView,
 } from './components'
 import { 
@@ -31,7 +29,6 @@ import {
 } from './hooks'
 import { initDB } from './lib/db'
 import { runDreamCycle } from './lib/dreamCycle'
-import { getLicenseStatus } from './lib/license'
 import type { Note, NoteTemplate, SearchFilters, ExportFormat, CompiledSection, DreamCycleReport as DreamCycleReportType } from './types'
 
 function App() {
@@ -110,23 +107,17 @@ function App() {
   // 关系图谱状态
   const [showGraph, setShowGraph] = useState(false)
 
-  // 激活码状态
-  const [showActivation, setShowActivation] = useState(false)
-  const [isLicenseActive, setIsLicenseActive] = useState(true) // TODO: 开发调试模式，正式上线改为 false
+  // 激活码状态（已禁用 for MVP）
 
-  // 检查激活状态
-  const checkLicense = useCallback(async () => {
-    const status = await getLicenseStatus()
-    setIsLicenseActive(status.isActivated)
-    // 通知 LicenseStatus 组件刷新
-    if (typeof window !== 'undefined' && (window as any).__refreshLicenseStatus) {
-      (window as any).__refreshLicenseStatus()
-    }
-  }, [])
+  // 检查激活状态（已禁用 for MVP）
+  // const checkLicense = useCallback(async () => {
+  //   const status = await getLicenseStatus()
+  //   setIsLicenseActive(status.isActivated)
+  // }, [])
 
-  useEffect(() => {
-    checkLicense()
-  }, [checkLicense])
+  // useEffect(() => {
+  //   checkLicense()
+  // }, [checkLicense])
 
   // 搜索和筛选状态
   const [searchQuery, setSearchQuery] = useState('')
@@ -279,14 +270,9 @@ function App() {
 
   // 打开周报生成器
   const handleOpenWeeklyReport = useCallback(() => {
-    // 检查激活状态
-    if (!isLicenseActive) {
-      setShowActivation(true)
-      return
-    }
     selectAll()
     openGenerator()
-  }, [selectAll, openGenerator, isLicenseActive])
+  }, [selectAll, openGenerator])
 
   // 切换收藏
   const handleToggleFavorite = useCallback(async (id: string) => {
@@ -318,13 +304,8 @@ function App() {
 
   // 打开梦境循环
   const handleOpenDreamCycle = useCallback(() => {
-    // 检查激活状态
-    if (!isLicenseActive) {
-      setShowActivation(true)
-      return
-    }
     setShowDreamCycle(true)
-  }, [isLicenseActive])
+  }, [])
 
   // 运行梦境循环
   const handleRunDreamCycle = useCallback(async () => {
@@ -425,7 +406,7 @@ function App() {
             favoriteCount={favoriteCount}
             onShowFavorites={() => setShowFavorites(true)}
             lastDreamRun={lastDreamRun}
-            onActivate={() => setShowActivation(true)}
+
           />
         )}
 
@@ -458,7 +439,7 @@ function App() {
               lastSavedAt={lastSavedAt}
               onToggleFavorite={currentNote?.id ? () => handleToggleFavorite(currentNote.id) : undefined}
               onExport={handleExport}
-              onActivate={() => setShowActivation(true)}
+  
             />
           </main>
         )}
@@ -528,16 +509,6 @@ function App() {
           </div>
         </div>
       )}
-
-      {/* 激活码弹窗 */}
-      <ActivationModal
-        isOpen={showActivation}
-        onClose={() => setShowActivation(false)}
-        onSuccess={() => {
-          setShowActivation(false)
-          checkLicense()
-        }}
-      />
 
       {/* 关系图谱 */}
       <GraphView
