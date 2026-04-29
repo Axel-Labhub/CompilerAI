@@ -54,7 +54,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ noteId, noteTitl
   if (!noteId) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in">
       {/* 背景遮罩 */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -62,7 +62,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({ noteId, noteTitl
       />
 
       {/* 面板内容 */}
-      <div className="relative bg-app-card border border-app-border rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+      <div className="relative bg-app-card border border-app-border rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-modal-scale-in">
         {/* 头部 */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-app-border">
           <div className="flex items-center gap-2">

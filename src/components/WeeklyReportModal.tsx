@@ -6,6 +6,7 @@
 import React, { useState } from 'react'
 import type { Note, WeeklyReport } from '../types'
 import { aiGenerateWeeklyReport } from '../lib/ai'
+import { showToastGlobal } from '../lib/toast'
 
 interface WeeklyReportModalProps {
   notes: Note[]
@@ -62,9 +63,10 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
     
     try {
       await navigator.clipboard.writeText(report.content)
-      alert('已复制到剪贴板！')
+      showToastGlobal('已复制到剪贴板！', 'success')
     } catch (err) {
       console.error('复制失败:', err)
+      showToastGlobal('复制失败，请重试', 'error')
     }
   }
 
@@ -84,8 +86,8 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-app-card border border-app-border rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-app-card border border-app-border rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-modal-scale-in">
         {/* 头部 */}
         <div className="flex items-center justify-between p-4 border-b border-app-border">
           <div className="flex items-center gap-3">
@@ -206,7 +208,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
               <button
                 onClick={handleGenerate}
                 disabled={selectedCount === 0 || generating}
-                className="w-full py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-app-border disabled:text-app-muted text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-app-border disabled:text-app-muted text-white rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 active:scale-[0.98] disabled:cursor-not-allowed disabled:transform-none"
               >
                 {generating ? (
                   <>

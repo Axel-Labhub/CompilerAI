@@ -97,12 +97,12 @@ export const DreamCycleReport: React.FC<DreamCycleReportProps> = ({
   const hasSuggestions = report.suggestions.length > 0
 
   return (
-    <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 rounded-lg overflow-hidden">
+    <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 rounded-lg overflow-hidden animate-modal-slide-up">
       {/* 头部 */}
       <div className="p-4 border-b border-indigo-500/20">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">🌙</span>
+            <span className="text-2xl animate-pulse">🌙</span>
             <div>
               <h2 className="text-lg font-medium text-indigo-200">梦境循环报告</h2>
               <p className="text-xs text-gray-400">
@@ -113,7 +113,7 @@ export const DreamCycleReport: React.FC<DreamCycleReportProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={onRun}
-              className="px-3 py-1.5 text-xs bg-indigo-600/50 hover:bg-indigo-500/50 text-white rounded transition-colors"
+              className="px-3 py-1.5 text-xs bg-indigo-600/50 hover:bg-indigo-500/50 text-white rounded transition-colors hover:scale-105 active:scale-95"
             >
               重新运行
             </button>
@@ -204,7 +204,7 @@ export const DreamCycleReport: React.FC<DreamCycleReportProps> = ({
                             e.stopPropagation()
                             handleSuggestionClick(suggestion)
                           }}
-                          className="px-3 py-1.5 text-xs bg-indigo-600/50 hover:bg-indigo-600 text-indigo-200 rounded transition-colors"
+                          className="px-3 py-1.5 text-xs bg-indigo-600/50 hover:bg-indigo-600 text-indigo-200 rounded transition-all hover:scale-105 active:scale-95"
                         >
                           查看详情
                         </button>
@@ -215,13 +215,21 @@ export const DreamCycleReport: React.FC<DreamCycleReportProps> = ({
                               handleExecute(suggestion)
                             }}
                             disabled={isExecuting}
-                            className={`px-3 py-1.5 text-xs rounded transition-colors ${
+                            className={`px-3 py-1.5 text-xs rounded transition-all disabled:cursor-not-allowed ${
                               suggestion.type === 'delete' 
-                                ? 'bg-red-600/50 hover:bg-red-600 text-red-200' 
-                                : 'bg-green-600/50 hover:bg-green-600 text-green-200'
-                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                ? 'bg-red-600/50 hover:bg-red-600 text-red-200 hover:scale-105 active:scale-95' 
+                                : 'bg-green-600/50 hover:bg-green-600 text-green-200 hover:scale-105 active:scale-95'
+                            } disabled:opacity-50 disabled:transform-none`}
                           >
-                            {isExecuting ? '执行中...' : '✨ 执行'}
+                            {isExecuting ? (
+                              <span className="flex items-center gap-1">
+                                <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                                执行中...
+                              </span>
+                            ) : '✨ 执行'}
                           </button>
                         )}
                       </div>

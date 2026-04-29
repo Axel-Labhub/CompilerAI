@@ -68,7 +68,7 @@ const ToastContainer: React.FC<{ toasts: Toast[]; onHide: (id: string) => void }
   if (toasts.length === 0) return null
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onHide={() => onHide(toast.id)} />
       ))}
@@ -94,13 +94,16 @@ const ToastItem: React.FC<{ toast: Toast; onHide: () => void }> = ({ toast, onHi
 
   return (
     <div
-      className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white ${bgColors[toast.type]} animate-slide-in-right`}
+      className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white pointer-events-auto ${bgColors[toast.type]} animate-slide-in-right`}
+      role="alert"
+      aria-live="polite"
     >
       <span className="text-lg">{icons[toast.type]}</span>
-      <span className="text-sm font-medium">{toast.message}</span>
+      <span className="text-sm font-medium flex-1">{toast.message}</span>
       <button
         onClick={onHide}
-        className="ml-2 p-1 rounded hover:bg-white/20 transition-colors"
+        className="p-1 rounded hover:bg-white/20 transition-colors ml-2"
+        aria-label="关闭提示"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
