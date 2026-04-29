@@ -2846,3 +2846,21 @@ export function buildHandoverContent(report: HandoverReport): string {
 
   return sections.join('\n')
 }
+
+
+// ==================== AI 调用增强版（带重试机制） ====================
+
+export interface RetryableAIOptions {
+  /** 最大重试次数 */
+  maxRetries?: number
+  /** 初始重试延迟(ms) */
+  initialDelay?: number
+  /** 重试倍数 */
+  backoffMultiplier?: number
+  /** 是否在重试时显示提示 */
+  showRetryToast?: boolean
+}
+
+/**
+ * 带重试机制的 AI 调用包装函数
+ */

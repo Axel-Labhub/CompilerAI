@@ -821,3 +821,14 @@ export function useVersionCompare(noteId: string | null) {
     loadVersions,
   }
 }
+
+
+// ==================== 导出所有自定义 hooks ====================
+
+// 注意：useTheme, useNotes, useAIFeatures, useEditor, useNoteVersions 等已在此文件中定义
+// 以下是独立文件的 hooks 导出
+export { useModal } from './useModal'
+export { useMarkdownToolbar } from './useMarkdownToolbar'
+export { useAutoSave, useManualSave } from './useAutoSave'
+export { useBacklinks, useBacklinksPanel } from './useBacklinks'
+export { useRetry, useRetryAction } from './useRetry'

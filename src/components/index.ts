@@ -46,6 +46,14 @@ export { GraphView } from './GraphView'
 
 // Toast 提示
 export { ToastProvider, useToast } from './Toast'
+// 增强版 Toast
+export { ToastProvider as ToastProviderEnhanced, useToast as useToastEnhanced } from '../lib/toast-enhanced'
+
+// 通用弹窗组件
+export { BaseModal, ModalWrapper } from './BaseModal'
+
+// 错误边界
+export { ErrorBoundary, useErrorHandler, useAsyncError } from './ErrorBoundary'
 
 // 新手指引
 export { WelcomeGuide, shouldShowWelcomeGuide } from './WelcomeGuide'
