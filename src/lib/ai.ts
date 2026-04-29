@@ -326,8 +326,6 @@ const NEGATIVE_EMOTIONS: Record<string, string> = {
   '嫉妒': '存在竞争意识',
   '眼红': '利益诉求',
   '柠檬': '需调整心态',
-  '躺平': '采取保守策略',
-  '摆烂': '暂不追求突破',
   '摸鱼': '高效完成基础任务',
   '划水': '完成基本工作',
   '佛系': '采取稳健策略',
@@ -336,7 +334,6 @@ const NEGATIVE_EMOTIONS: Record<string, string> = {
   '摆': '灵活处理',
   '卷': '竞争激烈',
   '太卷了': '行业竞争加剧',
-  '内卷': '资源争夺激烈',
   '卷王': '高绩效表现者',
   '卷不动': '需要策略调整',
   '卷死': '竞争过于激烈',
@@ -836,7 +833,6 @@ const SARCASM_EXPRESSIONS: Record<string, string> = {
   '踢皮球': '协作机制待完善',
   
   // 摆烂类
-  '摆烂': '需重新审视执行策略',
   '烂': '质量有待提升',
   
   // 摸鱼类
@@ -852,7 +848,6 @@ const SARCASM_EXPRESSIONS: Record<string, string> = {
   '懒': '方法值得借鉴',
   
   // 内卷类
-  '内卷': '竞争较激烈',
   '卷': '投入度较高',
   '卷王': '表现出色',
 }
@@ -1005,9 +1000,6 @@ const INTERNET_SLANG: Record<string, string> = {
   '社畜': '职场员工',
   '社恐': '社交较谨慎',
   '社牛': '社交能力强',
-  '内卷': '竞争激烈',
-  '躺平': '保持现状',
-  '摆烂': '暂不追求突破',
   '内耗': '自我消耗',
   '破防': '心理防线被突破',
   '凡尔赛': '含蓄表达',
@@ -1045,13 +1037,8 @@ const INTERNET_SLANG: Record<string, string> = {
   '破大防': '非常激动',
   '大冤种': '吃亏上当',
   '老六': '出其不意',
-  '躺平': '保持现状',
-  '摆烂': '暂不追求突破',
   '佛系': '采取稳健策略',
-  '内卷': '竞争激烈',
   '外卷': '外部竞争',
-  '躺平族': '保持现状群体',
-  '摆烂族': '放弃进取群体',
   '孔乙己': '知识分子的困境',
   '长衫': '传统观念束缚',
   '脱下长衫': '突破传统观念',
@@ -1066,7 +1053,6 @@ const INTERNET_SLANG: Record<string, string> = {
   // 游戏用语
   'GG': '比赛结束',
   'GG了': '情况不利',
-  '666': '表现优秀',
   '太强了': '表现卓越',
   '太菜了': '需要提升',
   '大神': '专家',
@@ -1103,7 +1089,6 @@ const INTERNET_SLANG: Record<string, string> = {
   '大型真香现场': '预期反转',
   
   // 缩写词
-  'LOL': '英雄联盟',
   'DOTA': '刀塔',
   'PUBG': '绝地求生',
   'FPS': '第一人称射击',
@@ -1143,7 +1128,6 @@ const WORKPLACE_JARGON: Record<string, string> = {
   '大小周': '工作节奏紧凑',
   '单休': '每周单休',
   '双休': '每周双休',
-  '弹性工作': '灵活工时',
   '996ICU': '工作强度影响健康',
   
   // 离职相关
@@ -1160,7 +1144,6 @@ const WORKPLACE_JARGON: Record<string, string> = {
   '灵活用工': '弹性雇佣',
   
   // 职场暗语
-  '弹性工作': '可能有加班',
   '抗压能力强': '能接受加班',
   '扁平化管理': '可能一人多岗',
   '创业公司': '资源有限',
@@ -1302,7 +1285,6 @@ const SARCASTIC_EXPRESSIONS: Record<string, string> = {
   '给跪了': '非常佩服',
   '服了': '确实优秀',
   '太强了': '表现出色',
-  '666': '表现优秀',
   '大佬': '专家',
   '巨佬': '资深专家',
   '神仙': '表现卓越',
@@ -1382,7 +1364,6 @@ const ENGLISH_TERMS: Record<string, string> = {
   'SDK': '软件开发包',
   'UI': '用户界面',
   'UX': '用户体验',
-  'MVP': '最小可行产品',
   'PoC': '概念验证',
   'Tech Stack': '技术栈',
   'Tech Debt': '技术债务',
@@ -1470,7 +1451,6 @@ const ENGLISH_TERMS: Record<string, string> = {
   'Testing': '测试',
   'QA': '质量保证',
   'UAT': '用户验收测试',
-  'QA': '质量保证',
   'QC': '质量控制',
 }
 
@@ -1619,21 +1599,19 @@ const DIALECT_EXPRESSIONS: Record<string, string> = {
  * 综合情绪词映射（用于模拟清洗）
  * 合并以上所有分类
  */
-const EMOTION_MAP: Record<string, string> = {
-  ...NEGATIVE_EMOTIONS,
-  ...SARCASM_EXPRESSIONS,
-  ...POSITIVE_EXPRESSIONS,
-  ...COLLOQUIAL_VERBS,
-  ...INTERNET_SLANG,
-  ...WORKPLACE_JARGON,
-  ...SARCASTIC_EXPRESSIONS,
-  ...ENGLISH_TERMS,
-  ...DIALECT_EXPRESSIONS,
-  
-  // 特殊符号处理
-  '!!!': '。',
-  '!!': '。',
-}
+const EMOTION_MAP: Record<string, string> = Object.assign({}, 
+  NEGATIVE_EMOTIONS,
+  SARCASM_EXPRESSIONS,
+  POSITIVE_EXPRESSIONS,
+  COLLOQUIAL_VERBS,
+  INTERNET_SLANG,
+  WORKPLACE_JARGON,
+  SARCASTIC_EXPRESSIONS,
+  ENGLISH_TERMS,
+  DIALECT_EXPRESSIONS,
+  // 特殊符号处理（后面的会覆盖前面的）
+  { '!!!': '。', '!!': '。' }
+)
 
 /**
  * 口语化表达正式化映射
