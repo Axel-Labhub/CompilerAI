@@ -13,6 +13,7 @@ interface DreamCycleReportProps {
   onRun: () => Promise<void>
   onClose: () => void
   onNavigateToNote?: (noteId: string) => void
+  onExecuteSuggestion?: (suggestion: DreamSuggestion) => Promise<void>  // 执行建议
 }
 
 export const DreamCycleReport: React.FC<DreamCycleReportProps> = ({
@@ -21,8 +22,10 @@ export const DreamCycleReport: React.FC<DreamCycleReportProps> = ({
   onRun,
   onClose,
   onNavigateToNote,
+  onExecuteSuggestion,
 }) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['suggestions']))
+  const [executingId, setExecutingId] = useState<string | null>(null)  // 正在执行的建议
 
   const toggleSection = (section: string) => {
     const newExpanded = new Set(expandedSections)
@@ -37,6 +40,16 @@ export const DreamCycleReport: React.FC<DreamCycleReportProps> = ({
   const handleSuggestionClick = (suggestion: DreamSuggestion) => {
     if (onNavigateToNote && suggestion.relatedNoteIds.length > 0) {
       onNavigateToNote(suggestion.relatedNoteIds[0])
+    }
+  }
+
+  const handleExecute = async (suggestion: DreamSuggestion) => {
+    if (!onExecuteSuggestion || executingId) return
+    setExecutingId(suggestion.title)
+    try {
+      await onExecuteSuggestion(suggestion)
+    } finally {
+      setExecutingId(null)
     }
   }
 
@@ -149,40 +162,72 @@ export const DreamCycleReport: React.FC<DreamCycleReportProps> = ({
             
             {expandedSections.has('suggestions') && (
               <div className="px-4 pb-4 space-y-2">
-                {report.suggestions.map((suggestion, index) => (
-                  <div
-                    key={index}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      suggestion.type === 'merge' ? 'bg-blue-900/30 hover:bg-blue-900/50' :
-                      suggestion.type === 'link' ? 'bg-amber-900/30 hover:bg-amber-900/50' :
-                      suggestion.type === 'tag' ? 'bg-green-900/30 hover:bg-green-900/50' :
-                      'bg-gray-900/30 hover:bg-gray-900/50'
-                    }`}
-                  >
-                    <div className="flex items-start gap-2">
-                      <span className="text-lg mt-0.5">
-                        {suggestion.type === 'merge' ? '🔀' :
-                         suggestion.type === 'link' ? '🔗' :
-                         suggestion.type === 'tag' ? '🏷️' : '📦'}
-                      </span>
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-gray-200">{suggestion.title}</h4>
-                        <p className="text-xs text-gray-400 mt-1">{suggestion.description}</p>
-                        {suggestion.actionItems.length > 0 && (
-                          <ul className="mt-2 space-y-1">
-                            {suggestion.actionItems.slice(0, 3).map((item, i) => (
-                              <li key={i} className="text-xs text-gray-500 flex items-start gap-1">
-                                <span className="text-indigo-400">•</span>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
+                {report.suggestions.map((suggestion, index) => {
+                  const isExecuting = executingId === suggestion.title
+                  return (
+                    <div
+                      key={index}
+                      className={`p-3 rounded-lg transition-colors ${
+                        suggestion.type === 'merge' ? 'bg-blue-900/30 hover:bg-blue-900/50' :
+                        suggestion.type === 'link' ? 'bg-amber-900/30 hover:bg-amber-900/50' :
+                        suggestion.type === 'tag' ? 'bg-green-900/30 hover:bg-green-900/50' :
+                        suggestion.type === 'delete' ? 'bg-red-900/30 hover:bg-red-900/50' :
+                        'bg-gray-900/30 hover:bg-gray-900/50'
+                      } ${isExecuting ? 'opacity-50' : ''}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        <span className="text-lg mt-0.5">
+                          {suggestion.type === 'merge' ? '🔀' :
+                           suggestion.type === 'link' ? '🔗' :
+                           suggestion.type === 'tag' ? '🏷️' :
+                           suggestion.type === 'delete' ? '🗑️' : '📦'}
+                        </span>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-gray-200">{suggestion.title}</h4>
+                          <p className="text-xs text-gray-400 mt-1">{suggestion.description}</p>
+                          {suggestion.actionItems.length > 0 && (
+                            <ul className="mt-2 space-y-1">
+                              {suggestion.actionItems.slice(0, 3).map((item, i) => (
+                                <li key={i} className="text-xs text-gray-500 flex items-start gap-1">
+                                  <span className="text-indigo-400">•</span>
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                      {/* 执行按钮 */}
+                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-indigo-500/20">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleSuggestionClick(suggestion)
+                          }}
+                          className="px-3 py-1.5 text-xs bg-indigo-600/50 hover:bg-indigo-600 text-indigo-200 rounded transition-colors"
+                        >
+                          查看详情
+                        </button>
+                        {onExecuteSuggestion && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleExecute(suggestion)
+                            }}
+                            disabled={isExecuting}
+                            className={`px-3 py-1.5 text-xs rounded transition-colors ${
+                              suggestion.type === 'delete' 
+                                ? 'bg-red-600/50 hover:bg-red-600 text-red-200' 
+                                : 'bg-green-600/50 hover:bg-green-600 text-green-200'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          >
+                            {isExecuting ? '执行中...' : '✨ 执行'}
+                          </button>
                         )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

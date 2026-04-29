@@ -423,6 +423,56 @@ function App() {
     }
   }, [notes, openNote])
 
+  // 执行梦境循环建议
+  const handleExecuteDreamSuggestion = useCallback(async (suggestion: any) => {
+    try {
+      switch (suggestion.type) {
+        case 'merge': {
+          // 合并笔记：保留目标笔记，删除源笔记
+          const [sourceId, targetId] = suggestion.relatedNoteIds
+          if (sourceId && targetId) {
+            const targetNote = notes.find(n => n.id === targetId)
+            const sourceNote = notes.find(n => n.id === sourceId)
+            if (targetNote && sourceNote) {
+              // 将源笔记内容追加到目标笔记
+              const mergedContent = `${targetNote.content}\n\n---\n合并自「${sourceNote.title}」：\n${sourceNote.content}`
+              await updateNote(targetNote.id, { content: mergedContent })
+              // 删除源笔记
+              await deleteNote(sourceId)
+              showToastGlobal('已合并笔记', 'success')
+            }
+          }
+          break
+        }
+        case 'delete': {
+          // 删除笔记
+          const noteId = suggestion.targetNoteId || suggestion.relatedNoteIds[0]
+          if (noteId) {
+            await deleteNote(noteId)
+            showToastGlobal('已删除笔记', 'success')
+          }
+          break
+        }
+        case 'tag': {
+          // 整理标签：跳转到笔记编辑
+          const noteId = suggestion.relatedNoteIds[0]
+          if (noteId) {
+            handleNavigateToNote(noteId)
+            showToastGlobal('跳转到笔记整理标签', 'info')
+          }
+          break
+        }
+        default:
+          showToastGlobal('该操作暂不支持自动执行', 'info')
+      }
+      // 重新运行梦境循环
+      await handleRunDreamCycle()
+    } catch (err) {
+      console.error('执行建议失败:', err)
+      showToastGlobal('执行失败', 'error')
+    }
+  }, [notes, deleteNote, updateNote, handleNavigateToNote, handleRunDreamCycle])
+
   // 获取所有不重复的标签
   const allTags = useMemo(() => {
     const tagSet = new Set<string>()
@@ -592,6 +642,7 @@ function App() {
               onRun={handleRunDreamCycle}
               onClose={handleCloseDreamCycle}
               onNavigateToNote={handleNavigateToNote}
+              onExecuteSuggestion={handleExecuteDreamSuggestion}
             />
           </div>
         </div>

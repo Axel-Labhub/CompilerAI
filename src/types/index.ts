@@ -352,11 +352,14 @@ export interface BrokenLink {
 
 // 整理建议
 export interface DreamSuggestion {
-  type: 'merge' | 'link' | 'tag' | 'archive'
+  type: 'merge' | 'link' | 'tag' | 'archive' | 'delete'
   title: string
   description: string
   actionItems: string[]
   relatedNoteIds: string[]
+  // 执行相关
+  targetNoteId?: string  // 操作的目标笔记ID
+  sourceNoteId?: string   // 操作的源笔记ID（如合并时的来源）
 }
 
 // 梦境循环报告
