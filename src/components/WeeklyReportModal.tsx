@@ -15,7 +15,6 @@ interface WeeklyReportModalProps {
   selectedIds: Set<string>
   onSelectAll?: () => void
   onDeselectAll?: () => void
-  selectedCount?: number
 }
 
 export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
@@ -26,7 +25,6 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
   selectedIds,
   onSelectAll,
   onDeselectAll,
-  selectedCount = 0,
 }) => {
   const [weekRange, setWeekRange] = useState('')
   const [generating, setGenerating] = useState(false)
@@ -35,6 +33,7 @@ export const WeeklyReportModal: React.FC<WeeklyReportModalProps> = ({
 
   // 获取选中的笔记
   const selectedNotes = notes.filter(n => selectedIds.has(n.id))
+  const selectedCount = selectedIds.size
 
   // 生成周报
   const handleGenerate = async () => {

@@ -677,16 +677,18 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
       </div>
 
       {/* 版本历史面板 */}
-      <VersionHistory
-        noteId={note?.id || null}
-        noteTitle={title}
-        onClose={() => setShowVersionHistory(false)}
-        onRestore={(restoredNote) => {
-          setTitle(restoredNote.title)
-          setContent(restoredNote.content)
-          setTags(restoredNote.tags)
-        }}
-      />
+      {_showVersionHistory && (
+        <VersionHistory
+          noteId={note?.id || null}
+          noteTitle={title}
+          onClose={() => setShowVersionHistory(false)}
+          onRestore={(restoredNote) => {
+            setTitle(restoredNote.title)
+            setContent(restoredNote.content)
+            setTags(restoredNote.tags)
+          }}
+        />
+      )}
     </div>
   )
 }
