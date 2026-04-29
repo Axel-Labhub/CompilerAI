@@ -2061,6 +2061,100 @@ function buildReportContent(report: {
   return parts.join('\n')
 }
 
+// ==================== AI 笔记融合 ====================
+
+/**
+ * AI 融合多篇相似笔记为一篇精炼的新笔记
+ * @param notes 要融合的笔记列表
+ * @returns 融合后的新笔记
+ */
+export async function aiMergeNotes(
+  notes: Pick<Note, 'id' | 'title' | 'content' | 'tags'>[]
+): Promise<{ title: string; content: string; tags: string[] }> {
+  // 如果只有一篇笔记，直接返回
+  if (notes.length <= 1) {
+    return {
+      title: notes[0]?.title || '无标题',
+      content: notes[0]?.content || '',
+      tags: notes[0]?.tags || [],
+    }
+  }
+
+  // 如果配置了 API，使用真实 AI
+  if (isAIConfigured()) {
+    const notesContent = notes
+      .map((n, i) => `【笔记${i + 1}】\n标题：${n.title}\n标签：${n.tags.join('、')}\n内容：\n${n.content}`)
+      .join('\n\n---\n\n')
+
+    const systemPrompt = `你是一个专业的知识整理专家，负责将多篇相似或重复的笔记融合成一篇结构清晰、内容精炼的新笔记。
+
+## 融合原则
+
+### 1. 去重合并
+- 识别并合并重复的内容
+- 保留每个独特的信息点
+- 去除冗余表述
+
+### 2. 结构重组
+- 按照合理的逻辑顺序重新组织内容
+- 使用清晰的标题和小节
+- 保持信息完整性
+
+### 3. 质量提升
+- 修正语法和表达问题
+- 统一术语和格式
+- 提升可读性
+
+### 4. 信息保留
+- 不丢失任何有价值的信息
+- 保留关键数据和时间点
+- 保留重要的观点和结论
+
+## 输出格式（必须是有效JSON）
+{
+  "title": "融合后的新标题（简洁明了）",
+  "content": "融合后的内容（Markdown格式，结构清晰）",
+  "tags": ["标签1", "标签2", "标签3"]  // 去重后的标签
+}
+
+## 注意事项
+- 只输出JSON对象，不要添加任何说明文字
+- 确保JSON格式正确
+- 内容使用Markdown格式，便于阅读
+- 标题要简洁，能概括核心主题`
+
+    try {
+      const result = await callDoubaoAPI(
+        systemPrompt,
+        `请将以下 ${notes.length} 篇相似笔记融合成一篇精炼的新笔记：\n\n${notesContent}`,
+        { max_tokens: 2000 }
+      )
+
+      if (result) {
+        const merged = JSON.parse(result)
+        return {
+          title: merged.title || `融合笔记 (${notes.length}篇)`,
+          content: merged.content || notes.map(n => n.content).join('\n\n---\n\n'),
+          tags: merged.tags || [...new Set(notes.flatMap(n => n.tags))],
+        }
+      }
+    } catch (error) {
+      console.warn('AI笔记融合失败，使用简单合并')
+    }
+  }
+
+  // 未配置API或融合失败，使用简单融合
+  const mergedContent = notes
+    .map(n => `## ${n.title}\n\n${n.content}`)
+    .join('\n\n---\n\n')
+
+  return {
+    title: `融合笔记 (${notes.length}篇)`,
+    content: mergedContent,
+    tags: [...new Set(notes.flatMap(n => n.tags))],
+  }
+}
+
 // ==================== AI 编译真相（洞察提炼） ====================
 
 /**

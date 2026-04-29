@@ -35,11 +35,14 @@ export { VersionHistoryPanel } from './VersionHistoryPanel'
 export { NoteCompiledSection } from './NoteCompiledSection'
 export { DreamCycleReport } from './DreamCycleReport'
 
+// 离职交接
+export { HandoverModal } from './HandoverModal'
+
+// 会议纪要
+export { MeetingMinutes } from './MeetingMinutes'
+
 // 关系图谱
 export { GraphView } from './GraphView'
-
-// 离职交接报告
-export { HandoverModal } from './HandoverModal'
 
 // Toast 提示
 export { ToastProvider, useToast } from './Toast'

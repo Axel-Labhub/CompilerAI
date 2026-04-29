@@ -19,6 +19,7 @@ import {
   DreamCycleReport,
   GraphView,
   HandoverModal,
+  MeetingMinutes,
   ToastProvider,
   WelcomeGuide,
   shouldShowWelcomeGuide,
@@ -35,6 +36,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { initDB, createNote as dbCreateNote } from './lib/db'
 import { runDreamCycle } from './lib/dreamCycle'
 import { showToastGlobal } from './lib/toast'
+import { aiMergeNotes } from './lib/ai'
 import { SAMPLE_NOTES } from './lib/sample-notes'
 import type { Note, NoteTemplate, SearchFilters, ExportFormat, ExportOptions, CompiledSection, DreamCycleReport as DreamCycleReportType } from './types'
 
@@ -140,11 +142,20 @@ function App() {
 
   // 处理示例笔记创建
   const handleCreateSampleNotes = useCallback(async () => {
+    // 检查是否已经创建过示例笔记
+    const samplesCreated = localStorage.getItem('samplesCreated')
+    if (samplesCreated === 'true') {
+      showToastGlobal('示例笔记已存在', 'info')
+      return
+    }
+    
     try {
       // 创建示例笔记
       for (const sampleNote of SAMPLE_NOTES) {
         await dbCreateNote(sampleNote)
       }
+      // 标记已创建
+      localStorage.setItem('samplesCreated', 'true')
       // 刷新笔记列表
       await loadNotes()
       showToastGlobal('示例笔记已创建', 'success')
@@ -428,19 +439,32 @@ function App() {
     try {
       switch (suggestion.type) {
         case 'merge': {
-          // 合并笔记：保留目标笔记，删除源笔记
-          const [sourceId, targetId] = suggestion.relatedNoteIds
-          if (sourceId && targetId) {
-            const targetNote = notes.find(n => n.id === targetId)
-            const sourceNote = notes.find(n => n.id === sourceId)
-            if (targetNote && sourceNote) {
-              // 将源笔记内容追加到目标笔记
-              const mergedContent = `${targetNote.content}\n\n---\n合并自「${sourceNote.title}」：\n${sourceNote.content}`
-              await updateNote(targetNote.id, { content: mergedContent })
-              // 删除源笔记
-              await deleteNote(sourceId)
-              showToastGlobal('已合并笔记', 'success')
+          // AI融合笔记：调用AI将多篇相似笔记融合成一篇精炼的新笔记
+          const noteIds = suggestion.relatedNoteIds
+          if (noteIds.length >= 2) {
+            const notesToMerge = noteIds.map((id: string) => notes.find(n => n.id === id)).filter(Boolean) as Note[]
+            if (notesToMerge.length >= 2) {
+              showToastGlobal('AI正在融合笔记...', 'info')
+              const merged = await aiMergeNotes(notesToMerge)
+              // 创建融合后的新笔记
+              await createNote(merged.title, merged.content, merged.tags)
+              // 删除被融合的所有原笔记
+              for (const note of notesToMerge) {
+                await deleteNote(note.id)
+              }
+              showToastGlobal('✨ AI已融合笔记，内容更精炼', 'success')
             }
+          } else if (noteIds.length === 2) {
+            // 只有两篇时
+            const [sourceId, targetId] = noteIds
+            const notesToMerge = [notes.find(n => n.id === sourceId), notes.find(n => n.id === targetId)].filter(Boolean) as Note[]
+            showToastGlobal('AI正在融合笔记...', 'info')
+            const merged = await aiMergeNotes(notesToMerge)
+            await createNote(merged.title, merged.content, merged.tags)
+            for (const note of notesToMerge) {
+              await deleteNote(note.id)
+            }
+            showToastGlobal('✨ AI已融合笔记，内容更精炼', 'success')
           }
           break
         }
@@ -471,7 +495,7 @@ function App() {
       console.error('执行建议失败:', err)
       showToastGlobal('执行失败', 'error')
     }
-  }, [notes, deleteNote, updateNote, handleNavigateToNote, handleRunDreamCycle])
+  }, [notes, deleteNote, createNote, handleNavigateToNote, handleRunDreamCycle])
 
   // 获取所有不重复的标签
   const allTags = useMemo(() => {
@@ -667,6 +691,16 @@ function App() {
       {showHandover && (
         <HandoverModal
           onClose={() => setShowHandover(false)}
+        />
+      )}
+
+      {/* 会议纪要 */}
+      {showMeetingNotes && (
+        <MeetingMinutes
+          onClose={() => setShowMeetingNotes(false)}
+          onCreateNote={(title: string, content: string, tags: string[]) => {
+            createNote(title, content, tags)
+          }}
         />
       )}
 
