@@ -1,17 +1,16 @@
 /**
- * 编译器 - 职场知识库 MVP
- * 
- * "你是你唯一的算法"
- * 公司买的是8小时结果，认知源码只属于你
+ * 新的主应用组件
+ * 使用集中式状态管理重构
  */
 
-import { useState, useCallback, useEffect, useMemo } from 'react'
-import { 
-  Header, 
-  Sidebar, 
-  NoteList, 
-  NoteEditor, 
-  Preview, 
+import { useState, useEffect, useCallback } from 'react'
+import { AppProvider, useApp } from './store/app-store'
+import {
+  Header,
+  Sidebar,
+  NoteList,
+  NoteEditor,
+  Preview,
   WeeklyReportModal,
   KeyboardShortcutsHelp,
   TemplateSelector,
@@ -22,127 +21,26 @@ import {
   MeetingMinutes,
   ToastProvider,
   WelcomeGuide,
-  shouldShowWelcomeGuide,
 } from './components'
-import { 
-  useNotes, 
-  useEditor, 
-  useWeeklyReportSelection, 
-  useTheme, 
-  useExport,
-} from './hooks'
-// 独立导入 useKeyboardShortcuts 以支持更多功能
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import { initDB, createNote as dbCreateNote } from './lib/db'
 import { runDreamCycle } from './lib/dreamCycle'
 import { showToastGlobal } from './lib/toast'
 import { aiMergeNotes } from './lib/ai'
+import { initDB, createNote as dbCreateNote } from './lib/db'
 import { SAMPLE_NOTES } from './lib/sample-notes'
-import type { Note, NoteTemplate, SearchFilters, ExportFormat, ExportOptions, CompiledSection, DreamCycleReport as DreamCycleReportType } from './types'
+import type { Note, NoteTemplate, DreamCycleReport as DreamCycleReportType } from './types'
 
-// App 主组件
-function App() {
-  // 数据库初始化状态
-  const [_dbReady, setDbReady] = useState(false)
-  const [dbError, setDbError] = useState<string | null>(null)
-
-  // 主题
-  const { theme, setTheme, toggleTheme } = useTheme()
-
-  // 笔记管理
-  const {
-    notes,
-    loading: notesLoading,
-    createNote,
-    updateNote,
-    deleteNote,
-    togglePin,
-    toggleFavorite,
-    searchNotes,
-    filterByTag,
-    loadNotes,
-    advancedSearchNotes,
-    loadFavorites,
-  } = useNotes()
-
-  // 编辑器状态
-  const {
-    currentNote,
-    viewMode,
-    isFullscreen,
-    isDirty,
-    saveStatus,
-    lastSavedAt,
-    openNote,
-    createNew,
-    closeEditor,
-    preview,
-    toggleFullscreen,
-    setCurrentNote,
-    setViewMode,
-    markSaving,
-    markSaved,
-  } = useEditor()
-
-  // 周报选择
-  const {
-    selectedIds,
-    showGenerator,
-    toggleSelection,
-    selectAll,
-    deselectAll,
-    getSelectedNotes,
-    openGenerator,
-    closeGenerator,
-  } = useWeeklyReportSelection(notes)
-
-  // 导出功能
-  const { exportAsMarkdown, exportAsHTML, exportAsPDF } = useExport()
-
-  // 弹窗状态
-  const [showHelp, setShowHelp] = useState(false)
-  const [showTemplateSelector, setShowTemplateSelector] = useState(false)
-  const [_showFavorites, setShowFavorites] = useState(false)
-  const [favoriteNotes, setFavoriteNotes] = useState<Note[]>([])
-
-  // 梦境循环状态
-  const [showDreamCycle, setShowDreamCycle] = useState(false)
+// 新的 App 组件
+function NewApp() {
+  const { state, dispatch, openNote, closeEditor, saveNote, toggleFavorite, deleteNote, loadNotes, createNote, setViewMode } = useApp()
+  
+  // 额外状态
   const [dreamReport, setDreamReport] = useState<DreamCycleReportType | null>(null)
   const [isDreamRunning, setIsDreamRunning] = useState(false)
-  const [lastDreamRun, setLastDreamRun] = useState<number | null>(() => {
-    const saved = localStorage.getItem('lastDreamRun')
-    return saved ? parseInt(saved, 10) : null
-  })
+  const [isAICleaning, setIsAICleaning] = useState(false)
+  const [isAICompiling, setIsAICompiling] = useState(false)
 
-  // 关系图谱状态
-  const [showGraph, setShowGraph] = useState(false)
-
-  // 离职交接状态
-  const [showHandover, setShowHandover] = useState(false)
-
-  // 会议纪要处理状态
-  const [showMeetingNotes, setShowMeetingNotes] = useState(false)
-
-  // 新手指引状态
-  const [showWelcomeGuide, setShowWelcomeGuide] = useState(() => shouldShowWelcomeGuide())
-
-  // 搜索和筛选状态
-  const [searchQuery, setSearchQuery] = useState('')
-  const [activeTag, setActiveTag] = useState<string | null>(null)
-
-  // 初始化数据库
-  useEffect(() => {
-    initDB()
-      .then(() => setDbReady(true))
-      .catch((err) => {
-        console.error('数据库初始化失败:', err)
-        setDbError('数据库初始化失败，请刷新页面重试')
-      })
-  }, [])
-
-  // 处理示例笔记创建
+  // 创建示例笔记
   const handleCreateSampleNotes = useCallback(async () => {
-    // 检查是否已经创建过示例笔记
     const samplesCreated = localStorage.getItem('samplesCreated')
     if (samplesCreated === 'true') {
       showToastGlobal('示例笔记已存在', 'info')
@@ -150,13 +48,10 @@ function App() {
     }
     
     try {
-      // 创建示例笔记
       for (const sampleNote of SAMPLE_NOTES) {
         await dbCreateNote(sampleNote)
       }
-      // 标记已创建
       localStorage.setItem('samplesCreated', 'true')
-      // 刷新笔记列表
       await loadNotes()
       showToastGlobal('示例笔记已创建', 'success')
     } catch (err) {
@@ -176,26 +71,13 @@ function App() {
     }
   }, [handleCreateSampleNotes])
 
-  // 加载收藏笔记
-  const loadFavoriteNotes = useCallback(async () => {
-    const favorites = await loadFavorites()
-    setFavoriteNotes(favorites)
-  }, [loadFavorites])
-
-  useEffect(() => {
-    loadFavoriteNotes()
-  }, [notes, loadFavoriteNotes])
-
-  // AI 清洗处理函数
-  const [isAICleaning, setIsAICleaning] = useState(false)
+  // AI 清洗处理
   const handleAIClean = useCallback(async () => {
-    if (!currentNote || viewMode !== 'editor' || isAICleaning) return
+    if (!state.currentNote || state.viewMode !== 'editor' || isAICleaning) return
     
     setIsAICleaning(true)
     try {
-      window.dispatchEvent(new CustomEvent('ai-clean', { 
-        detail: { noteId: currentNote.id } 
-      }))
+      window.dispatchEvent(new CustomEvent('ai-clean', { detail: { noteId: state.currentNote.id } }))
       showToastGlobal('正在清洗内容...', 'info')
     } catch (err) {
       console.error('AI 清洗失败:', err)
@@ -203,18 +85,15 @@ function App() {
     } finally {
       setIsAICleaning(false)
     }
-  }, [currentNote, viewMode, isAICleaning])
+  }, [state.currentNote, state.viewMode, isAICleaning])
 
-  // AI 编译真相处理函数
-  const [isAICompiling, setIsAICompiling] = useState(false)
+  // AI 编译处理
   const handleAICompile = useCallback(async () => {
-    if (!currentNote || viewMode !== 'editor' || isAICompiling) return
+    if (!state.currentNote || state.viewMode !== 'editor' || isAICompiling) return
     
     setIsAICompiling(true)
     try {
-      window.dispatchEvent(new CustomEvent('ai-compile', { 
-        detail: { noteId: currentNote.id } 
-      }))
+      window.dispatchEvent(new CustomEvent('ai-compile', { detail: { noteId: state.currentNote.id } }))
       showToastGlobal('正在编译真相...', 'info')
     } catch (err) {
       console.error('AI 编译失败:', err)
@@ -222,129 +101,17 @@ function App() {
     } finally {
       setIsAICompiling(false)
     }
-  }, [currentNote, viewMode, isAICompiling])
+  }, [state.currentNote, state.viewMode, isAICompiling])
 
-  // 生成周报处理函数
-  const handleWeeklyReport = useCallback(() => {
-    if (viewMode !== 'list') return
-    handleOpenWeeklyReport()
+  // 打开周报生成器
+  const handleOpenWeeklyReport = useCallback(() => {
+    dispatch({ type: 'TOGGLE_WEEKLY_REPORT' })
     showToastGlobal('正在打开周报生成器...', 'info')
-  }, [viewMode])
-
-  // 全局快捷键
-  useKeyboardShortcuts({
-    onSave: () => {
-      if (viewMode === 'editor') {
-        window.dispatchEvent(new CustomEvent('editor-save'))
-        showToastGlobal('保存中...', 'info')
-      }
-    },
-    onNew: () => {
-      if (viewMode === 'list') {
-        handleCreateNew()
-      }
-    },
-    onSearch: () => {
-      const searchInput = document.querySelector('input[placeholder*="搜索"]') as HTMLInputElement
-      searchInput?.focus()
-    },
-    onPreview: () => {
-      if (viewMode === 'editor') {
-        preview()
-      }
-    },
-    onFullscreen: () => {
-      if (viewMode === 'editor' || viewMode === 'preview') {
-        toggleFullscreen()
-      }
-    },
-    onHelp: () => {
-      setShowHelp(prev => !prev)
-    },
-    onAIClean: handleAIClean,
-    onAICompile: handleAICompile,
-    onWeeklyReport: handleWeeklyReport,
-  })
-
-  // 处理搜索
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query)
-    setActiveTag(null)
-    searchNotes(query)
-  }, [searchNotes])
-
-  // 高级搜索
-  const handleAdvancedSearch = useCallback((filters: SearchFilters) => {
-    setSearchQuery('')
-    setActiveTag(null)
-    advancedSearchNotes({
-      ...filters,
-      query: searchQuery,
-    })
-  }, [advancedSearchNotes, searchQuery])
-
-  // 重置搜索
-  const handleResetSearch = useCallback(() => {
-    setSearchQuery('')
-    loadNotes()
-  }, [loadNotes])
-
-  // 处理标签筛选
-  const handleTagClick = useCallback((tag: string | null) => {
-    setActiveTag(tag)
-    setSearchQuery('')
-    filterByTag(tag)
-  }, [filterByTag])
-
-  // 打开笔记
-  const handleOpenNote = useCallback((note: Note) => {
-    openNote(note)
-  }, [openNote])
-
-  // 创建新笔记
-  const handleCreateNew = useCallback(() => {
-    setShowTemplateSelector(true)
-  }, [])
-
-  // 选择模板
-  const handleSelectTemplate = useCallback((template: NoteTemplate | null) => {
-    if (template) {
-      createNew(template.content)
-    } else {
-      createNew()
-    }
-  }, [createNew])
-
-  // 保存笔记
-  const handleSave = useCallback(async (title: string, content: string, tags: string[], compiledSection?: CompiledSection | null) => {
-    markSaving()
-    if (currentNote && currentNote.id) {
-      await updateNote(currentNote.id, { title, content, tags, compiledSection })
-    } else {
-      const newNote = await createNote(title, content, tags)
-      if (newNote) {
-        setCurrentNote(newNote)
-      }
-    }
-    markSaved()
-    loadFavoriteNotes()
-  }, [currentNote, createNote, updateNote, setCurrentNote, markSaving, markSaved, loadFavoriteNotes])
-
-  // 删除笔记
-  const handleDelete = useCallback(async (id: string) => {
-    if (confirm('确定要删除这条笔记吗？')) {
-      await deleteNote(id)
-      if (currentNote?.id === id) {
-        closeEditor()
-      }
-      loadFavoriteNotes()
-      showToastGlobal('笔记已删除', 'success')
-    }
-  }, [currentNote, deleteNote, closeEditor, loadFavoriteNotes])
+  }, [dispatch])
 
   // 返回列表视图
   const handleBackToList = useCallback(() => {
-    if (isDirty) {
+    if (state.isDirty) {
       if (confirm('有未保存的更改，确定要离开吗？')) {
         closeEditor()
         loadNotes()
@@ -353,54 +120,38 @@ function App() {
       closeEditor()
       loadNotes()
     }
-  }, [isDirty, closeEditor, loadNotes])
+  }, [state.isDirty, closeEditor, loadNotes])
 
-  // 切换到编辑模式
-  const handleEdit = useCallback(() => {
-    setViewMode('editor')
-  }, [setViewMode])
-
-  // 打开周报生成器
-  const handleOpenWeeklyReport = useCallback(() => {
-    selectAll()
-    openGenerator()
-  }, [selectAll, openGenerator])
-
-  // 切换收藏
-  const handleToggleFavorite = useCallback(async (id: string) => {
-    await toggleFavorite(id)
-    loadFavoriteNotes()
-  }, [toggleFavorite, loadFavoriteNotes])
-
-  // 处理导出
-  const handleExport = useCallback((format: ExportFormat, options: ExportOptions) => {
-    if (!currentNote) return
-    
-    const noteToExport = {
-      ...currentNote,
-      title: currentNote.title || '无标题笔记',
+  // 选择模板
+  const handleSelectTemplate = useCallback((template: NoteTemplate | null) => {
+    dispatch({ type: 'TOGGLE_TEMPLATE_SELECTOR' })
+    if (template) {
+      createNote(template.name || '新建笔记', template.content, [])
+        .then(note => {
+          if (note) {
+            openNote(note)
+          }
+        })
+    } else {
+      createNote('新建笔记', '', [])
+        .then(note => {
+          if (note) {
+            openNote(note)
+          }
+        })
     }
+  }, [dispatch, createNote, openNote])
 
-    switch (format) {
-      case 'md':
-        exportAsMarkdown(noteToExport, options)
-        showToastGlobal('导出 Markdown 成功', 'success')
-        break
-      case 'html':
-        exportAsHTML(noteToExport, options)
-        showToastGlobal('导出 HTML 成功', 'success')
-        break
-      case 'pdf':
-        exportAsPDF(noteToExport, options)
-        showToastGlobal('导出 PDF 成功，请在弹窗中打印或保存为 PDF', 'info')
-        break
+  // 处理删除确认
+  const handleDeleteWithConfirm = useCallback(async (id: string) => {
+    if (confirm('确定要删除这条笔记吗？')) {
+      await deleteNote(id)
+      if (state.currentNote?.id === id) {
+        closeEditor()
+      }
+      showToastGlobal('笔记已删除', 'success')
     }
-  }, [currentNote, exportAsMarkdown, exportAsHTML, exportAsPDF])
-
-  // 打开梦境循环
-  const handleOpenDreamCycle = useCallback(() => {
-    setShowDreamCycle(true)
-  }, [])
+  }, [state.currentNote, deleteNote, closeEditor])
 
   // 运行梦境循环
   const handleRunDreamCycle = useCallback(async () => {
@@ -409,7 +160,6 @@ function App() {
       const report = await runDreamCycle()
       setDreamReport(report)
       const now = Date.now()
-      setLastDreamRun(now)
       localStorage.setItem('lastDreamRun', now.toString())
       showToastGlobal('梦境整理完成', 'success')
     } catch (err) {
@@ -420,44 +170,15 @@ function App() {
     }
   }, [])
 
-  // 关闭梦境循环
-  const handleCloseDreamCycle = useCallback(() => {
-    setShowDreamCycle(false)
-  }, [])
-
-  // 导航到笔记
-  const handleNavigateToNote = useCallback((noteId: string) => {
-    const note = notes.find(n => n.id === noteId)
-    if (note) {
-      openNote(note)
-      setShowDreamCycle(false)
-    }
-  }, [notes, openNote])
-
   // 执行梦境循环建议
   const handleExecuteDreamSuggestion = useCallback(async (suggestion: any) => {
     try {
       switch (suggestion.type) {
         case 'merge': {
-          // AI融合笔记：调用AI将多篇相似笔记融合成一篇精炼的新笔记
           const noteIds = suggestion.relatedNoteIds
-          if (noteIds.length >= 2) {
-            const notesToMerge = noteIds.map((id: string) => notes.find(n => n.id === id)).filter(Boolean) as Note[]
-            if (notesToMerge.length >= 2) {
-              showToastGlobal('AI正在融合笔记...', 'info')
-              const merged = await aiMergeNotes(notesToMerge)
-              // 创建融合后的新笔记
-              await createNote(merged.title, merged.content, merged.tags)
-              // 删除被融合的所有原笔记
-              for (const note of notesToMerge) {
-                await deleteNote(note.id)
-              }
-              showToastGlobal('✨ AI已融合笔记，内容更精炼', 'success')
-            }
-          } else if (noteIds.length === 2) {
-            // 只有两篇时
-            const [sourceId, targetId] = noteIds
-            const notesToMerge = [notes.find(n => n.id === sourceId), notes.find(n => n.id === targetId)].filter(Boolean) as Note[]
+          const notesToMerge = noteIds.map((id: string) => state.notes.find(n => n.id === id)).filter(Boolean) as Note[]
+          
+          if (notesToMerge.length >= 2) {
             showToastGlobal('AI正在融合笔记...', 'info')
             const merged = await aiMergeNotes(notesToMerge)
             await createNote(merged.title, merged.content, merged.tags)
@@ -469,7 +190,6 @@ function App() {
           break
         }
         case 'delete': {
-          // 删除笔记
           const noteId = suggestion.targetNoteId || suggestion.relatedNoteIds[0]
           if (noteId) {
             await deleteNote(noteId)
@@ -478,10 +198,12 @@ function App() {
           break
         }
         case 'tag': {
-          // 整理标签：跳转到笔记编辑
           const noteId = suggestion.relatedNoteIds[0]
           if (noteId) {
-            handleNavigateToNote(noteId)
+            const note = state.notes.find(n => n.id === noteId)
+            if (note) {
+              openNote(note)
+            }
             showToastGlobal('跳转到笔记整理标签', 'info')
           }
           break
@@ -489,26 +211,27 @@ function App() {
         default:
           showToastGlobal('该操作暂不支持自动执行', 'info')
       }
-      // 重新运行梦境循环
       await handleRunDreamCycle()
     } catch (err) {
       console.error('执行建议失败:', err)
       showToastGlobal('执行失败', 'error')
     }
-  }, [notes, deleteNote, createNote, handleNavigateToNote, handleRunDreamCycle])
+  }, [state.notes, deleteNote, createNote, openNote, handleRunDreamCycle])
 
-  // 获取所有不重复的标签
-  const allTags = useMemo(() => {
-    const tagSet = new Set<string>()
-    notes.forEach(note => note.tags.forEach(tag => tagSet.add(tag)))
-    return Array.from(tagSet)
-  }, [notes])
+  // 导航到笔记
+  const handleNavigateToNote = useCallback((noteId: string) => {
+    const note = state.notes.find(n => n.id === noteId)
+    if (note) {
+      openNote(note)
+      dispatch({ type: 'TOGGLE_DREAM_CYCLE' })
+    }
+  }, [state.notes, openNote, dispatch])
 
-  // 收藏数量
-  const favoriteCount = favoriteNotes.length
+  // 获取所有标签
+  const allTags = [...new Set(state.notes.flatMap(note => note.tags))]
 
   // 错误处理
-  if (dbError) {
+  if (state.error) {
     return (
       <div className="min-h-screen bg-dark-bg flex items-center justify-center p-4">
         <div className="text-center">
@@ -518,7 +241,7 @@ function App() {
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-dark-text mb-2">出错了</h2>
-          <p className="text-dark-muted mb-4">{dbError}</p>
+          <p className="text-dark-muted mb-4">{state.error}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
@@ -530,141 +253,157 @@ function App() {
     )
   }
 
+  // 加载状态
+  if (!state.dbReady || state.loading) {
+    return (
+      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-dark-muted">加载中...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* 头部 */}
       <Header
-        theme={theme}
-        onThemeToggle={toggleTheme}
-        onThemeChange={setTheme}
+        searchQuery={state.searchQuery}
+        onSearch={(query) => {
+          dispatch({ type: 'SET_SEARCH_QUERY', payload: query })
+        }}
         onLogoClick={() => {
-          setActiveTag(null)
-          setSearchQuery('')
+          dispatch({ type: 'RESET_SEARCH' })
           loadNotes()
         }}
-        onSearch={handleSearch}
-        onAdvancedSearch={handleAdvancedSearch}
-        onResetSearch={handleResetSearch}
-        searchQuery={searchQuery}
-        showFavorites={() => setShowFavorites(true)}
-        favoriteCount={favoriteCount}
+        favoriteCount={state.favorites.length}
+        showFavorites={() => dispatch({ type: 'TOGGLE_FAVORITES' })}
+        onAdvancedSearch={() => {}}
+        onResetSearch={() => {
+          dispatch({ type: 'RESET_SEARCH' })
+          loadNotes()
+        }}
       />
 
       {/* 主内容区 */}
       <div className="flex-1 flex overflow-hidden">
         {/* 侧边栏 */}
-        {viewMode === 'list' && (
+        {state.viewMode === 'list' && (
           <Sidebar
             allTags={allTags}
-            activeTag={activeTag}
-            onTagClick={handleTagClick}
-            onNewNote={handleCreateNew}
+            activeTag={state.activeTag}
+            onTagClick={(tag) => {
+              dispatch({ type: 'SET_ACTIVE_TAG', payload: tag })
+              dispatch({ type: 'SET_SEARCH_QUERY', payload: '' })
+              // 实际筛选逻辑在 filterByTag 中
+            }}
+            onNewNote={() => dispatch({ type: 'TOGGLE_TEMPLATE_SELECTOR' })}
             onOpenWeeklyReport={handleOpenWeeklyReport}
-            onOpenDreamCycle={handleOpenDreamCycle}
-            onOpenHandover={() => setShowHandover(true)}
-            onOpenMeetingNotes={() => setShowMeetingNotes(true)}
-            onOpenGraph={() => setShowGraph(true)}
-            noteCount={notes.length}
-            favoriteCount={favoriteCount}
-            onShowFavorites={() => setShowFavorites(true)}
-            lastDreamRun={lastDreamRun}
-
+            onOpenDreamCycle={() => dispatch({ type: 'TOGGLE_DREAM_CYCLE' })}
+            onOpenHandover={() => dispatch({ type: 'TOGGLE_HANDOVER' })}
+            onOpenMeetingNotes={() => dispatch({ type: 'TOGGLE_MEETING_NOTES' })}
+            onOpenGraph={() => dispatch({ type: 'TOGGLE_GRAPH' })}
+            noteCount={state.notes.length}
+            favoriteCount={state.favorites.length}
+            onShowFavorites={() => dispatch({ type: 'TOGGLE_FAVORITES' })}
+            lastDreamRun={localStorage.getItem('lastDreamRun') ? parseInt(localStorage.getItem('lastDreamRun')!, 10) : null}
           />
         )}
 
         {/* 笔记列表 */}
-        {viewMode === 'list' && (
+        {state.viewMode === 'list' && (
           <main className="flex-1 overflow-hidden flex flex-col">
             <NoteList
-              notes={notes}
-              loading={notesLoading}
-              onNoteClick={handleOpenNote}
-              onDelete={handleDelete}
-              onTogglePin={togglePin}
-              onToggleFavorite={handleToggleFavorite}
-              searchQuery={searchQuery}
+              notes={state.notes}
+              loading={state.loading}
+              onNoteClick={openNote}
+              onDelete={handleDeleteWithConfirm}
+              onTogglePin={(id) => dispatch({ type: 'TOGGLE_PIN', payload: id })}
+              onToggleFavorite={toggleFavorite}
+              searchQuery={state.searchQuery}
             />
           </main>
         )}
 
         {/* 编辑器 */}
-        {viewMode === 'editor' && (
+        {state.viewMode === 'editor' && (
           <main className="flex-1 overflow-hidden">
             <NoteEditor
-              note={currentNote}
-              onSave={handleSave}
+              note={state.currentNote}
+              onSave={saveNote}
               onClose={handleBackToList}
-              onPreview={preview}
-              isFullscreen={isFullscreen}
-              onToggleFullscreen={toggleFullscreen}
-              saveStatus={saveStatus}
-              lastSavedAt={lastSavedAt}
-              onToggleFavorite={currentNote?.id ? () => handleToggleFavorite(currentNote.id) : undefined}
-              onExport={handleExport}
+              onPreview={() => setViewMode('preview')}
+              isFullscreen={state.isFullscreen}
+              onToggleFullscreen={() => dispatch({ type: 'TOGGLE_FULLSCREEN' })}
+              saveStatus={state.saveStatus}
+              lastSavedAt={state.lastSavedAt}
+              onToggleFavorite={state.currentNote?.id ? () => toggleFavorite(state.currentNote!.id) : undefined}
+              onExport={() => {}}
             />
           </main>
         )}
 
         {/* 预览 */}
-        {viewMode === 'preview' && currentNote && (
+        {state.viewMode === 'preview' && state.currentNote && (
           <main className="flex-1 overflow-hidden">
             <Preview
-              title={currentNote.title}
-              content={currentNote.content}
-              tags={currentNote.tags}
+              title={state.currentNote.title}
+              content={state.currentNote.content}
+              tags={state.currentNote.tags}
               onBack={handleBackToList}
-              onEdit={handleEdit}
-              isFullscreen={isFullscreen}
-              onToggleFullscreen={toggleFullscreen}
+              onEdit={() => setViewMode('editor')}
+              isFullscreen={state.isFullscreen}
+              onToggleFullscreen={() => dispatch({ type: 'TOGGLE_FULLSCREEN' })}
             />
           </main>
         )}
       </div>
 
       {/* 周报生成器 */}
-      {showGenerator && (
+      {state.showWeeklyReport && (
         <WeeklyReportModal
-          notes={getSelectedNotes()}
-          selectedIds={selectedIds}
-          onToggleNote={(id) => toggleSelection(id)}
-          onSelectAll={selectAll}
-          onDeselectAll={deselectAll}
-          onClose={closeGenerator}
+          notes={state.notes}
+          selectedIds={new Set<string>()}
+          onToggleNote={() => {}}
+          onSelectAll={() => {}}
+          onDeselectAll={() => {}}
+          onClose={() => dispatch({ type: 'TOGGLE_WEEKLY_REPORT' })}
         />
       )}
 
       {/* 快捷键帮助 */}
       <KeyboardShortcutsHelp
-        isOpen={showHelp}
-        onClose={() => setShowHelp(false)}
+        isOpen={state.showHelp}
+        onClose={() => dispatch({ type: 'TOGGLE_HELP' })}
       />
 
       {/* 模板选择器 */}
       <TemplateSelector
-        isOpen={showTemplateSelector}
-        onClose={() => setShowTemplateSelector(false)}
+        isOpen={state.showTemplateSelector}
+        onClose={() => dispatch({ type: 'TOGGLE_TEMPLATE_SELECTOR' })}
         onSelect={handleSelectTemplate}
       />
 
       {/* 收藏夹 */}
-      {_showFavorites && (
+      {state.showFavorites && (
         <Favorites
-          notes={favoriteNotes}
-          onNoteClick={handleOpenNote}
-          onToggleFavorite={handleToggleFavorite}
-          onClose={() => setShowFavorites(false)}
+          notes={state.favorites}
+          onNoteClick={openNote}
+          onToggleFavorite={toggleFavorite}
+          onClose={() => dispatch({ type: 'TOGGLE_FAVORITES' })}
         />
       )}
 
       {/* 梦境循环报告 */}
-      {showDreamCycle && (
+      {state.showDreamCycle && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="w-full max-w-lg">
             <DreamCycleReport
               report={dreamReport}
               isRunning={isDreamRunning}
               onRun={handleRunDreamCycle}
-              onClose={handleCloseDreamCycle}
+              onClose={() => dispatch({ type: 'TOGGLE_DREAM_CYCLE' })}
               onNavigateToNote={handleNavigateToNote}
               onExecuteSuggestion={handleExecuteDreamSuggestion}
             />
@@ -674,42 +413,46 @@ function App() {
 
       {/* 关系图谱 */}
       <GraphView
-        notes={notes}
-        currentNoteId={currentNote?.id}
-        isOpen={showGraph}
-        onClose={() => setShowGraph(false)}
+        notes={state.notes}
+        currentNoteId={state.currentNote?.id}
+        isOpen={state.showGraph}
+        onClose={() => dispatch({ type: 'TOGGLE_GRAPH' })}
         onNavigate={(noteId) => {
-          const note = notes.find(n => n.id === noteId)
+          const note = state.notes.find(n => n.id === noteId)
           if (note) {
             openNote(note)
-            setShowGraph(false)
+            dispatch({ type: 'TOGGLE_GRAPH' })
           }
         }}
       />
 
       {/* 离职交接报告 */}
-      {showHandover && (
+      {state.showHandover && (
         <HandoverModal
-          onClose={() => setShowHandover(false)}
+          onClose={() => dispatch({ type: 'TOGGLE_HANDOVER' })}
         />
       )}
 
       {/* 会议纪要 */}
-      {showMeetingNotes && (
+      {state.showMeetingNotes && (
         <MeetingMinutes
-          onClose={() => setShowMeetingNotes(false)}
-          onCreateNote={(title: string, content: string, tags: string[]) => {
+          onClose={() => dispatch({ type: 'TOGGLE_MEETING_NOTES' })}
+          onCreateNote={(title, content, tags) => {
             createNote(title, content, tags)
           }}
         />
       )}
 
       {/* 新手指引 */}
-      {showWelcomeGuide && (
+      {state.showWelcomeGuide && (
         <WelcomeGuide
-          onComplete={() => setShowWelcomeGuide(false)}
+          onComplete={() => {
+            dispatch({ type: 'TOGGLE_WELCOME_GUIDE' })
+            localStorage.setItem('welcomeGuideCompleted', 'true')
+          }}
           onViewSamples={() => {
-            setShowWelcomeGuide(false)
+            dispatch({ type: 'TOGGLE_WELCOME_GUIDE' })
+            localStorage.setItem('welcomeGuideCompleted', 'true')
             handleCreateSampleNotes()
           }}
         />
@@ -718,13 +461,15 @@ function App() {
   )
 }
 
-// 包装组件 - 提供 Toast 功能
-function AppWithToast() {
+// 包装组件
+function AppWithProviders() {
   return (
     <ToastProvider>
-      <App />
+      <AppProvider>
+        <NewApp />
+      </AppProvider>
     </ToastProvider>
   )
 }
 
-export default AppWithToast
+export default AppWithProviders

@@ -9,9 +9,9 @@ import SearchFilters from './SearchFilters'
 import type { Theme, SearchFilters as SearchFiltersType } from '../types'
 
 interface HeaderProps {
-  theme: Theme
-  onThemeToggle: () => void
-  onThemeChange: (theme: Theme) => void
+  theme?: Theme
+  onThemeToggle?: () => void
+  onThemeChange?: (theme: Theme) => void
   onLogoClick: () => void
   onSearch: (query: string) => void
   onAdvancedSearch: (filters: SearchFiltersType) => void
@@ -152,7 +152,9 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* 主题切换 */}
-          <ThemeToggle theme={theme} onToggle={onThemeToggle} onSetTheme={onThemeChange} />
+          {theme !== undefined && onThemeToggle && onThemeChange && (
+            <ThemeToggle theme={theme} onToggle={onThemeToggle} onSetTheme={onThemeChange} />
+          )}
 
           {/* 右侧标语 */}
           <div className="hidden sm:flex items-center gap-2 text-xs text-app-muted">

@@ -99,7 +99,7 @@ export function generateId(): string {
  * @param note 笔记数据（不包含 id, createdAt, updatedAt）
  * @returns 创建后的完整笔记
  */
-export async function createNote(note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<Note> {
+export async function createNote(note: Omit<Note, 'id' | 'createdAt' | 'updatedAt' | 'isPinned' | 'isFavorite'>): Promise<Note> {
   const db = await initDB()
   const now = Date.now()
   
@@ -108,6 +108,8 @@ export async function createNote(note: Omit<Note, 'id' | 'createdAt' | 'updatedA
     id: generateId(),
     createdAt: now,
     updatedAt: now,
+    isPinned: false,
+    isFavorite: false,
   }
 
   await db.put(NOTES_STORE, newNote)

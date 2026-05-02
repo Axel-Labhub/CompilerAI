@@ -115,8 +115,6 @@ export function useNotes() {
         title,
         content,
         tags,
-        isPinned: false,
-        isFavorite: false,
       })
       setNotes(prev => [newNote, ...prev])
       return newNote
