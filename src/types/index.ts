@@ -317,6 +317,7 @@ export interface SearchFilters {
   tags?: string[]
   sortBy: 'updatedAt' | 'createdAt' | 'title'
   sortOrder: 'asc' | 'desc'
+  favoritesOnly?: boolean  // 是否只显示收藏笔记
 }
 
 // ==================== 主题 ====================

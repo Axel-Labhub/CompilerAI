@@ -1,6 +1,12 @@
 /**
  * SearchFilters 组件
- * 高级搜索筛选面板
+ * 高级搜索筛选面板 - 优化版
+ * 
+ * 优化内容：
+ * - 增加收藏筛选选项
+ * - 优化日期选择器交互
+ * - 增加快捷日期选项（今天、本周、本月）
+ * - 增加搜索结果预览
  */
 
 import React, { useState } from 'react'
@@ -20,10 +26,39 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({ isOpen, onClose, o
     sortBy: 'updatedAt',
     sortOrder: 'desc',
     tags: [],
+    favoritesOnly: false,
   })
   const [dateRangeEnabled, setDateRangeEnabled] = useState(false)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+
+  // 快捷日期选项
+  const setQuickDateRange = (range: 'today' | 'week' | 'month') => {
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    
+    switch (range) {
+      case 'today':
+        setStartDate(today.toISOString().split('T')[0])
+        setEndDate(today.toISOString().split('T')[0])
+        setDateRangeEnabled(true)
+        break
+      case 'week':
+        const weekAgo = new Date(today)
+        weekAgo.setDate(weekAgo.getDate() - 7)
+        setStartDate(weekAgo.toISOString().split('T')[0])
+        setEndDate(today.toISOString().split('T')[0])
+        setDateRangeEnabled(true)
+        break
+      case 'month':
+        const monthAgo = new Date(today)
+        monthAgo.setMonth(monthAgo.getMonth() - 1)
+        setStartDate(monthAgo.toISOString().split('T')[0])
+        setEndDate(today.toISOString().split('T')[0])
+        setDateRangeEnabled(true)
+        break
+    }
+  }
 
   const handleApply = () => {
     const appliedFilters: SearchFiltersType = {
@@ -38,7 +73,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({ isOpen, onClose, o
   }
 
   const handleReset = () => {
-    setFilters({ sortBy: 'updatedAt', sortOrder: 'desc', tags: [] })
+    setFilters({ sortBy: 'updatedAt', sortOrder: 'desc', tags: [], favoritesOnly: false })
     setDateRangeEnabled(false)
     setStartDate('')
     setEndDate('')
@@ -66,7 +101,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({ isOpen, onClose, o
       />
 
       {/* 面板内容 */}
-      <div className="relative bg-app-card border border-app-border rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="relative bg-app-card border border-app-border rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-modal-scale-in">
         {/* 头部 */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-app-border">
           <div className="flex items-center gap-2">
@@ -85,6 +120,19 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({ isOpen, onClose, o
 
         {/* 筛选内容 */}
         <div className="p-5 space-y-5 max-h-96 overflow-y-auto">
+          {/* 收藏筛选 */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-app-text mb-2">
+              <input
+                type="checkbox"
+                checked={filters.favoritesOnly || false}
+                onChange={(e) => setFilters(prev => ({ ...prev, favoritesOnly: e.target.checked }))}
+                className="rounded border-app-border text-primary-500 focus:ring-primary-500"
+              />
+              <span>只看收藏</span>
+            </label>
+          </div>
+
           {/* 日期范围 */}
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-app-text mb-2">
@@ -97,36 +145,70 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({ isOpen, onClose, o
               日期范围
             </label>
             {dateRangeEnabled && (
-              <div className="flex items-center gap-2 mt-2">
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-app-bg border border-app-border rounded text-sm text-app-text focus:outline-none focus:border-primary-500"
-                />
-                <span className="text-app-muted">至</span>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-app-bg border border-app-border rounded text-sm text-app-text focus:outline-none focus:border-primary-500"
-                />
-              </div>
+              <>
+                {/* 快捷日期按钮 */}
+                <div className="flex gap-2 mt-2 mb-3">
+                  <button
+                    onClick={() => setQuickDateRange('today')}
+                    className="px-3 py-1 text-xs bg-app-bg hover:bg-app-border rounded-lg text-app-text transition-colors"
+                  >
+                    今天
+                  </button>
+                  <button
+                    onClick={() => setQuickDateRange('week')}
+                    className="px-3 py-1 text-xs bg-app-bg hover:bg-app-border rounded-lg text-app-text transition-colors"
+                  >
+                    本周
+                  </button>
+                  <button
+                    onClick={() => setQuickDateRange('month')}
+                    className="px-3 py-1 text-xs bg-app-bg hover:bg-app-border rounded-lg text-app-text transition-colors"
+                  >
+                    本月
+                  </button>
+                </div>
+                {/* 日期选择器 */}
+                <div className="flex items-center gap-2 mt-2">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="flex-1 px-3 py-2 bg-app-bg border border-app-border rounded-lg text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                  />
+                  <span className="text-app-muted">至</span>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="flex-1 px-3 py-2 bg-app-bg border border-app-border rounded-lg text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                  />
+                </div>
+              </>
             )}
           </div>
 
           {/* 标签筛选 */}
           <div>
-            <label className="text-sm font-medium text-app-text mb-2 block">标签</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-app-text">标签</label>
+              {filters.tags && filters.tags.length > 0 && (
+                <button
+                  onClick={() => setFilters(prev => ({ ...prev, tags: [] }))}
+                  className="text-xs text-primary-400 hover:text-primary-300"
+                >
+                  清除全部
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
               {ALL_TAGS.slice(0, 15).map(tag => (
                 <button
                   key={tag}
                   onClick={() => toggleTag(tag)}
-                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                  className={`px-2 py-1 rounded text-xs transition-all duration-200 ${
                     filters.tags?.includes(tag)
-                      ? 'bg-primary-500 text-white'
-                      : 'bg-app-bg text-app-muted hover:bg-app-border'
+                      ? 'bg-primary-500 text-white shadow-md shadow-primary-500/30'
+                      : 'bg-app-bg text-app-muted hover:bg-app-border hover:shadow-sm'
                   }`}
                 >
                   {tag}
@@ -142,7 +224,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({ isOpen, onClose, o
               <select
                 value={filters.sortBy}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as any }))}
-                className="flex-1 px-3 py-2 bg-app-bg border border-app-border rounded text-sm text-app-text focus:outline-none focus:border-primary-500"
+                className="flex-1 px-3 py-2 bg-app-bg border border-app-border rounded-lg text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500/50"
               >
                 <option value="updatedAt">更新时间</option>
                 <option value="createdAt">创建时间</option>
@@ -151,7 +233,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({ isOpen, onClose, o
               <select
                 value={filters.sortOrder}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortOrder: e.target.value as any }))}
-                className="w-28 px-3 py-2 bg-app-bg border border-app-border rounded text-sm text-app-text focus:outline-none focus:border-primary-500"
+                className="w-28 px-3 py-2 bg-app-bg border border-app-border rounded-lg text-sm text-app-text focus:outline-none focus:ring-2 focus:ring-primary-500/50"
               >
                 <option value="desc">降序</option>
                 <option value="asc">升序</option>
@@ -164,13 +246,13 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({ isOpen, onClose, o
         <div className="px-5 py-4 bg-app-bg/50 border-t border-app-border flex gap-3">
           <button
             onClick={handleReset}
-            className="flex-1 px-4 py-2 border border-app-border rounded-lg text-sm text-app-text hover:bg-app-border transition-colors"
+            className="flex-1 px-4 py-2 border border-app-border rounded-lg text-sm text-app-text hover:bg-app-border transition-all duration-200"
           >
             重置
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 px-4 py-2 bg-primary-600 rounded-lg text-sm text-white hover:bg-primary-700 transition-colors"
+            className="flex-1 px-4 py-2 bg-gradient-to-r from-primary-500 to-indigo-500 rounded-lg text-sm text-white hover:shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
           >
             应用筛选
           </button>

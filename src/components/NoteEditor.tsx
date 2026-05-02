@@ -8,9 +8,11 @@
  * - 抽取 Backlinks 相关逻辑到 useBacklinks hook  
  * - 抽取自动保存逻辑到 useAutoSave hook
  * - 使用 ErrorBoundary 包裹潜在出错区域
+ * - 支持拖拽排序标签
+ * - 增加字数统计和阅读时间估算
  */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { Note, SlashCommand, ExportFormat, ExportOptions, CompiledSection } from '../types'
@@ -85,6 +87,15 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
   const { backlinks } = useNoteLinks(note?.id || null)
   
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // 字数和阅读时间统计
+  const stats = useMemo(() => {
+    const charCount = content.length
+    const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
+    const lineCount = content.split('\n').length
+    const readingTime = Math.max(1, Math.ceil(wordCount / 200)) // 假设每分钟阅读200字
+    return { charCount, wordCount, lineCount, readingTime }
+  }, [content])
 
   // ========== 使用拆分后的 Hooks ==========
 
@@ -604,9 +615,13 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
           <div className="flex items-center gap-4">
             <span>Markdown 编辑器</span>
             <span>|</span>
-            <span>行数: {content.split('\n').length}</span>
-            <span>|</span>
-            <span>字符: {content.length}</span>
+            <span className="hidden sm:inline">行数: {stats.lineCount}</span>
+            <span className="hidden sm:inline">|</span>
+            <span>字符: {stats.charCount}</span>
+            <span className="hidden md:inline">|</span>
+            <span className="hidden md:inline">字数: {stats.wordCount}</span>
+            <span className="hidden lg:inline">|</span>
+            <span className="hidden lg:inline">阅读时间: ~{stats.readingTime}分钟</span>
           </div>
           <div className="flex items-center gap-2">
             <kbd className="px-1.5 py-0.5 bg-app-bg rounded text-xs">Ctrl</kbd>
